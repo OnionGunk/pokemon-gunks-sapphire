@@ -473,6 +473,16 @@ const struct MenuAction MultichoiceList_01[] =
     {gOtherText_CancelNoTerminator, NULL},
 };
 
+// Gunk: the Pokémon Center PC's Move Tutor
+static const u8 sGunkText_Remember[] = _("REMEMBER");
+static const u8 sGunkText_Forget[] = _("FORGET");
+static const struct MenuAction sGunkMultichoice_MoveTutor[] =
+{
+    {sGunkText_Remember, NULL},
+    {sGunkText_Forget, NULL},
+    {gOtherText_CancelNoTerminator, NULL},
+};
+
 struct MultichoiceListStruct
 {
     const struct MenuAction *list;
@@ -554,6 +564,7 @@ const struct MultichoiceListStruct gMultichoiceLists[] =
     {MultichoiceList_70, ARRAY_COUNT(MultichoiceList_70)},
     {MultichoiceList_71, ARRAY_COUNT(MultichoiceList_71)},
     {MultichoiceList_72, ARRAY_COUNT(MultichoiceList_72)},
+    {sGunkMultichoice_MoveTutor, ARRAY_COUNT(sGunkMultichoice_MoveTutor)}, // MULTI_GUNK_MOVE_TUTOR
 };
 
 const u8 *const gStdStrings[] =
@@ -916,6 +927,7 @@ void ScriptMenu_CreatePCMenu(void)
     else
         sp8[r4++] = GetStringWidthInTilesForScriptMenu(gPCText_SomeonesPC);
     sp8[r4++] = GetStringWidthInTilesForScriptMenu(gPCText_PlayersPC);
+    sp8[r4++] = GetStringWidthInTilesForScriptMenu(gGunkPCText_MoveTutor);
     sp8[r4++] = GetStringWidthInTilesForScriptMenu(gPCText_LogOff);
     if (FlagGet(FLAG_SYS_GAME_CLEAR))
         sp8[r4++] = GetStringWidthInTilesForScriptMenu(gPCText_HallOfFame);
@@ -928,19 +940,21 @@ void ScriptMenu_CreatePCMenu(void)
     }
 #endif
 
+    // Gunk: MOVE TUTOR is the third row; HALL OF FAME (after the game is cleared) and LOG OFF move down one
     if (FlagGet(FLAG_SYS_GAME_CLEAR)) // player has cleared game?
     {
-        numChoices = 4;
-        Menu_DrawStdWindowFrame(0, 0, width + 2, 9);
-        Menu_PrintText(gPCText_HallOfFame, 1, 5);
-        Menu_PrintText(gPCText_LogOff, 1, 7);
+        numChoices = 5;
+        Menu_DrawStdWindowFrame(0, 0, width + 2, 11);
+        Menu_PrintText(gPCText_HallOfFame, 1, 7);
+        Menu_PrintText(gPCText_LogOff, 1, 9);
     }
     else
     {
-        numChoices = 3;
-        Menu_DrawStdWindowFrame(0, 0, width + 2, 7);
-        Menu_PrintText(gPCText_LogOff, 1, 5);
+        numChoices = 4;
+        Menu_DrawStdWindowFrame(0, 0, width + 2, 9);
+        Menu_PrintText(gPCText_LogOff, 1, 7);
     }
+    Menu_PrintText(gGunkPCText_MoveTutor, 1, 5);
 
     if (FlagGet(FLAG_SYS_PC_LANETTE)) // player met lanette?
         Menu_PrintText(gPCText_LanettesPC, 1, 1);

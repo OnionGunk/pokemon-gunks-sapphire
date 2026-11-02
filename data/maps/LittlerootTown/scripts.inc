@@ -881,6 +881,5 @@ LittlerootTown_EventScript_GiveRunningShoes:: @ 814DD38
 	return
 
 LittlerootTown_Text_GunkMomGifts:
-	.string "MOM: And these are for the long
-"
+	.string "MOM: And these are for the long\n"
 	.string "journey ahead of you!$"

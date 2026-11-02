@@ -598,10 +598,8 @@ void ItemUseOutOfBattle_PokeblockCase(u8 taskId)
     }
 }
 
-static const u8 sGunkText_IsNowOn[] = _("The {STR_VAR_1}
-is now ON.");
-static const u8 sGunkText_IsNowOff[] = _("The {STR_VAR_1}
-is now OFF.");
+static const u8 sGunkText_IsNowOn[] = _("The {STR_VAR_1}\nis now ON.");
+static const u8 sGunkText_IsNowOff[] = _("The {STR_VAR_1}\nis now OFF.");
 
 // Gunk: USE on the Endless Repel or Exp. All switches it on or off
 void ItemUseOutOfBattle_GunkToggle(u8 taskId)

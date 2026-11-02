@@ -1605,8 +1605,7 @@ Text_RepelWoreOff: @ 81C33EF
 	.string "REPEL's effect wore off...$"
 
 Text_RepelWoreOffUseAnother:
-	.string "REPEL's effect wore off...
-"
+	.string "REPEL's effect wore off...\n"
 	.string "Use another {STR_VAR_2}?$"
 
 Text_UsedAnotherRepel:

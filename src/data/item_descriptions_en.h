@@ -963,17 +963,13 @@ static const u8 gItemDescription_MachBike[] = _(
 
 // Gunk
 static const u8 gItemDescription_EndlessRepel[] = _(
-    "Keeps weak wild
-"
-    "POKéMON away. USE
-"
+    "Keeps weak wild\n"
+    "POKéMON away. USE\n"
     "switches it on/off.");
 
 static const u8 gItemDescription_ExpAll[] = _(
-    "POKéMON that didn't
-"
-    "battle get half EXP.
-"
+    "POKéMON that didn't\n"
+    "battle get half EXP.\n"
     "USE: on/off.");
 
 static const u8 gItemDescription_CoinCase[] = _(

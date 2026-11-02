@@ -689,6 +689,7 @@ const u8 gPCText_LanettesPC[] = _("LANETTE'S PC");
 const u8 gPCText_PlayersPC[] = _("{PLAYER}'s PC");
 const u8 gPCText_HallOfFame[] = _("HALL OF FAME");
 const u8 gPCText_LogOff[] = _("LOG OFF");
+const u8 gGunkPCText_MoveTutor[] = _("MOVE TUTOR");
 
 const u8 gOtherText_99Times[] = _("99 times +");
 const u8 gOtherText_1Minute[] = _("1 minute +");
@@ -1614,6 +1615,7 @@ const u8 gPCText_LanettesPC[] = _("LANETTES PC");
 const u8 gPCText_PlayersPC[] = _("PC von {PLAYER}");
 const u8 gPCText_HallOfFame[] = _("RUHMESHALLE");
 const u8 gPCText_LogOff[] = _("AUSLOGGEN");
+const u8 gGunkPCText_MoveTutor[] = _("MOVE TUTOR");
 
 const u8 gOtherText_99Times[] = _("99-mal +");
 const u8 gOtherText_1Minute[] = _("1 Minute +");

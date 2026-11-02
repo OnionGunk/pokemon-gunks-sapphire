@@ -9,6 +9,7 @@
 
 // Multichoice Ids
 // TODO
+#define MULTI_GUNK_MOVE_TUTOR 73 // Gunk: REMEMBER / FORGET / CANCEL
 
 // Std String Ids
 #define STDSTRING_COOL             0

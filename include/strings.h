@@ -665,6 +665,7 @@ extern const u8 gPCText_LanettesPC[];
 extern const u8 gPCText_PlayersPC[];
 extern const u8 gPCText_HallOfFame[];
 extern const u8 gPCText_LogOff[];
+extern const u8 gGunkPCText_MoveTutor[];
 
 extern const u8 gOtherText_99Times[];
 extern const u8 gOtherText_1Minute[];

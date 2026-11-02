@@ -20,7 +20,7 @@ ifeq ($(GAME_VERSION), RUBY)
 else
 ifeq ($(GAME_VERSION), SAPPHIRE)
   BUILD_NAME := sapphire
-  TITLE      := POKEMON SAPP
+  TITLE      := GUNK SA
   GAME_CODE  := AXP
 else
   $(error unknown version $(GAME_VERSION))

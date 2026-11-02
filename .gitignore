@@ -48,3 +48,11 @@ build/
 porymap.*.cfg
 prefabs.json
 .porydaw/
+
+# Gunk: never commit ROMs, saves or patches
+*.sav
+*.SaveRAM
+*.State
+*.state
+*.bps
+*.zip

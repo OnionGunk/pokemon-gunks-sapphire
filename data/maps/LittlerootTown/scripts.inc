@@ -871,7 +871,16 @@ LittlerootTown_EventScript_GiveRunningShoes:: @ 814DD38
 	waitmessage
 	setflag FLAG_RECEIVED_RUNNING_SHOES
 	msgbox LittlerootTown_Text_ExplainRunningShoes, MSGBOX_DEFAULT
+	@ Gunk: Mom's other gifts
+	msgbox LittlerootTown_Text_GunkMomGifts, MSGBOX_DEFAULT
+	giveitem ITEM_ENDLESS_REPEL
+	giveitem ITEM_EXP_ALL
 	msgbox LittlerootTown_Text_ComeHomeIfAnythingHappens, MSGBOX_DEFAULT
 	closemessage
 	delay 30
 	return
+
+LittlerootTown_Text_GunkMomGifts:
+	.string "MOM: And these are for the long
+"
+	.string "journey ahead of you!$"

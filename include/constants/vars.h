@@ -170,6 +170,10 @@
 #define VAR_STEVENS_HOUSE_STATE           0x40C6
 #define VAR_OLDALE_STATE                  0x40C7
 
+// Gunk's Ruby (unused in vanilla)
+#define VAR_GUNK_LAST_REPEL               0x40F0 // the Repel kind last used, for the Repel prompt
+#define VAR_GUNK_SETTINGS                 0x40F1 // GUNK_* switch bits (include/gunk.h)
+
 #define VARS_END                          0x40FF
 
 #define SPECIAL_VARS_START 0x8000

@@ -1580,12 +1580,37 @@ S_RunningShoesManual:: @ 81B6E5A
 
 	.include "data/text/trainers.inc"
 
+@ Gunk: offer another Repel of the same kind when one is in the bag
 S_RepelWoreOff:: @ 81C33E6
+	specialvar VAR_RESULT, GunkCheckLastRepel
+	compare VAR_RESULT, 0
+	goto_if_eq S_RepelWoreOffPlain
+	lockall
+	msgbox Text_RepelWoreOffUseAnother, MSGBOX_YESNO
+	compare VAR_RESULT, 0 @ NO
+	goto_if_eq S_RepelWoreOffDone
+	special GunkUseLastRepel
+	playse SE_REPEL
+	msgbox Text_UsedAnotherRepel, MSGBOX_DEFAULT
+S_RepelWoreOffDone:
+	closemessage
+	releaseall
+	end
+
+S_RepelWoreOffPlain:
 	msgbox Text_RepelWoreOff, MSGBOX_SIGN
 	end
 
 Text_RepelWoreOff: @ 81C33EF
 	.string "REPEL's effect wore off...$"
+
+Text_RepelWoreOffUseAnother:
+	.string "REPEL's effect wore off...
+"
+	.string "Use another {STR_VAR_2}?$"
+
+Text_UsedAnotherRepel:
+	.string "{PLAYER} used the {STR_VAR_2}.$"
 
 	.include "data/scripts/safari_zone.inc"
 	.include "data/text/safari_zone.inc"

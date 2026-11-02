@@ -1,5 +1,6 @@
 #include "global.h"
 #include "wild_encounter.h"
+#include "gunk.h"
 #include "constants/abilities.h"
 #include "battle_setup.h"
 #include "event_data.h"
@@ -686,7 +687,7 @@ static bool8 IsWildLevelAllowedByRepel(u8 wildLevel)
 {
     u8 i;
 
-    if (!VarGet(VAR_REPEL_STEP_COUNT))
+    if (!VarGet(VAR_REPEL_STEP_COUNT) && !GunkSettingOn(GUNK_ENDLESS_REPEL)) // Gunk: Endless Repel
     {
         return TRUE;
     }

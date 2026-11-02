@@ -1,5 +1,6 @@
 #include "global.h"
 #include "item_use.h"
+#include "gunk.h"
 #include "battle.h"
 #include "berry.h"
 #include "bike.h"
@@ -597,6 +598,31 @@ void ItemUseOutOfBattle_PokeblockCase(u8 taskId)
     }
 }
 
+static const u8 sGunkText_IsNowOn[] = _("The {STR_VAR_1}
+is now ON.");
+static const u8 sGunkText_IsNowOff[] = _("The {STR_VAR_1}
+is now OFF.");
+
+// Gunk: USE on the Endless Repel or Exp. All switches it on or off
+void ItemUseOutOfBattle_GunkToggle(u8 taskId)
+{
+    u16 bit = gSpecialVar_ItemId == ITEM_ENDLESS_REPEL ? GUNK_ENDLESS_REPEL : GUNK_EXP_ALL;
+
+    GunkToggleSetting(bit);
+    CopyItemName(gSpecialVar_ItemId, gStringVar1);
+    StringExpandPlaceholders(gStringVar4, GunkSettingOn(bit) ? sGunkText_IsNowOn : sGunkText_IsNowOff);
+    PlaySE(SE_SELECT);
+    if (!gTasks[taskId].data[2])
+    {
+        Menu_EraseWindowRect(0, 13, 13, 20);
+        DisplayItemMessageOnField(taskId, gStringVar4, CleanUpItemMenuMessage, 1);
+    }
+    else
+    {
+        DisplayItemMessageOnField(taskId, gStringVar4, CleanUpOverworldMessage, 0);
+    }
+}
+
 void ItemUseOutOfBattle_CoinCase(u8 taskId)
 {
     ConvertIntToDecimalStringN(gStringVar1, GetCoins(), 0, 4);
@@ -784,6 +810,7 @@ void ItemUseOutOfBattle_Repel(u8 taskId)
 {
     if (VarGet(VAR_REPEL_STEP_COUNT) == 0)
     {
+        VarSet(VAR_GUNK_LAST_REPEL, gSpecialVar_ItemId); // Gunk: for the "use another?" prompt
         VarSet(VAR_REPEL_STEP_COUNT, ItemId_GetHoldEffectParam(gSpecialVar_ItemId));
         PrepareItemUseMessage();
         DisplayItemMessageOnField(taskId, gStringVar4, CleanUpItemMenuMessage, 1);

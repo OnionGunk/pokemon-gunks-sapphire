@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "battle.h"
 #include "battle_anim.h"
 #include "battle_message.h"
@@ -3323,6 +3324,17 @@ static void atk22_jumpiftype(void) //u8 battlerId, u8 type, *ptr
         gBattlescriptCurrInstr += 7;
 }
 
+// Gunk: Exp. All. With it switched on, party Pokémon that didn't battle get half the base EXP (and the EVs).
+static u16 sGunkExpAllExp;
+
+static bool8 GunkGetsExpAll(u8 monId)
+{
+    return GunkSettingOn(GUNK_EXP_ALL)
+        && GetMonData(&gPlayerParty[monId], MON_DATA_SPECIES) != SPECIES_NONE
+        && !GetMonData(&gPlayerParty[monId], MON_DATA_IS_EGG)
+        && GetMonData(&gPlayerParty[monId], MON_DATA_HP) != 0;
+}
+
 static void atk23_getexp(void)
 {
     u16 item;
@@ -3395,6 +3407,9 @@ static void atk23_getexp(void)
                     *exp = 1;
                 gExpShareExp = 0;
             }
+            sGunkExpAllExp = calculatedExp / 2;
+            if (sGunkExpAllExp == 0)
+                sGunkExpAllExp = 1;
 
             gBattleStruct->getexpStateTracker++;
             gBattleStruct->expGetterMonId = 0;
@@ -3411,7 +3426,8 @@ static void atk23_getexp(void)
             else
                 holdEffect = ItemId_GetHoldEffect(item);
 
-            if (holdEffect != HOLD_EFFECT_EXP_SHARE && !(gBattleStruct->sentInPokes & 1))
+            if (holdEffect != HOLD_EFFECT_EXP_SHARE && !(gBattleStruct->sentInPokes & 1)
+             && !GunkGetsExpAll(gBattleStruct->expGetterMonId))
             {
                 gBattleStruct->sentInPokes >>= 1;
                 gBattleStruct->getexpStateTracker = 5;
@@ -3442,6 +3458,8 @@ static void atk23_getexp(void)
 
                     if (holdEffect == HOLD_EFFECT_EXP_SHARE)
                         gBattleMoveDamage += gExpShareExp;
+                    else if (!(gBattleStruct->sentInPokes & 1) && GunkGetsExpAll(gBattleStruct->expGetterMonId))
+                        gBattleMoveDamage += sGunkExpAllExp;
                     if (holdEffect == HOLD_EFFECT_LUCKY_EGG)
                         gBattleMoveDamage = (gBattleMoveDamage * 150) / 100;
                     if (gBattleTypeFlags & BATTLE_TYPE_TRAINER)

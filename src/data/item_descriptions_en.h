@@ -961,6 +961,21 @@ static const u8 gItemDescription_MachBike[] = _(
     "that more than\n"
     "doubles foot speed.");
 
+// Gunk
+static const u8 gItemDescription_EndlessRepel[] = _(
+    "Keeps weak wild
+"
+    "POKéMON away. USE
+"
+    "switches it on/off.");
+
+static const u8 gItemDescription_ExpAll[] = _(
+    "POKéMON that didn't
+"
+    "battle get half EXP.
+"
+    "USE: on/off.");
+
 static const u8 gItemDescription_CoinCase[] = _(
     "A case that holds\n"
     "up to 9,999 COINS.");

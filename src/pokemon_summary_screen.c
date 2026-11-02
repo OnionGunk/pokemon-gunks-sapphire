@@ -37,6 +37,8 @@
 static void SummaryScreen_PrintPokemonInfoLabels(void);
 static void SummaryScreen_PrintPokemonSkillsLabels(void);
 static void sub_809F63C(struct Pokemon *);
+// Gunk: which numbers the skills page shows (0 stats, 1 IVs, 2 EVs)
+static u8 sGunkStatView;
 static void sub_809F650(struct Pokemon *);
 static void sub_809F664(struct Pokemon *);
 static void sub_809FE6C(struct Pokemon *);
@@ -960,6 +962,13 @@ static void SummaryScreenHandleKeyInput(u8 taskId)
     }
     else if (JOY_NEW(A_BUTTON))
     {
+        if (pssData.page == PSS_PAGE_SKILLS)
+        {
+            // Gunk: A on the skills page cycles stats -> IVs -> EVs
+            sGunkStatView = (sGunkStatView + 1) % 3;
+            PlaySE(SE_SELECT);
+            sub_809F650(&pssData.loadedMon);
+        }
         if (pssData.page >= PSS_PAGE_BATTLE_MOVES)
             SummaryScreenHandleAButton(taskId);
         if (pssData.page == PSS_PAGE_INFO)
@@ -2178,6 +2187,18 @@ static void SummaryScreen_PrintPokemonSkillsLabels(void)
     SummaryScreen_PrintColoredTextCentered(gOtherText_Speed, 13, 22, 11, 36);
 }
 
+static const u8 sGunkText_IV[] = _("IV");
+static const u8 sGunkText_EV[] = _("EV");
+
+static u32 GunkSummaryStat(struct Pokemon *mon, u8 stat, u8 iv, u8 ev)
+{
+    if (sGunkStatView == 1)
+        return GetMonData(mon, iv);
+    if (sGunkStatView == 2)
+        return GetMonData(mon, ev);
+    return GetMonData(mon, stat);
+}
+
 static void SummaryScreen_PrintPokemonSkills(struct Pokemon *mon)
 {
     u8 i;
@@ -2197,24 +2218,32 @@ static void SummaryScreen_PrintPokemonSkills(struct Pokemon *mon)
     MenuPrint_RightAligned(buffer, 29, 14);
     DrawExperienceProgressBar(mon, 23, 16);
 
-    ConvertIntToDecimalString(buffer, GetMonData(mon, MON_DATA_ATK));
+    ConvertIntToDecimalString(buffer, GunkSummaryStat(mon, MON_DATA_ATK, MON_DATA_ATK_IV, MON_DATA_ATK_EV));
     MenuPrint_Centered(buffer, 16, 9, 50);
 
-    ConvertIntToDecimalString(buffer, GetMonData(mon, MON_DATA_DEF));
+    ConvertIntToDecimalString(buffer, GunkSummaryStat(mon, MON_DATA_DEF, MON_DATA_DEF_IV, MON_DATA_DEF_EV));
     MenuPrint_Centered(buffer, 16, 11, 50);
 
-    ConvertIntToDecimalString(buffer, GetMonData(mon, MON_DATA_SPATK));
+    ConvertIntToDecimalString(buffer, GunkSummaryStat(mon, MON_DATA_SPATK, MON_DATA_SPATK_IV, MON_DATA_SPATK_EV));
     MenuPrint_Centered(buffer, 27, 7, 18);
 
-    ConvertIntToDecimalString(buffer, GetMonData(mon, MON_DATA_SPDEF));
+    ConvertIntToDecimalString(buffer, GunkSummaryStat(mon, MON_DATA_SPDEF, MON_DATA_SPDEF_IV, MON_DATA_SPDEF_EV));
     MenuPrint_Centered(buffer, 27, 9, 18);
 
-    ConvertIntToDecimalString(buffer, GetMonData(mon, MON_DATA_SPEED));
+    ConvertIntToDecimalString(buffer, GunkSummaryStat(mon, MON_DATA_SPEED, MON_DATA_SPEED_IV, MON_DATA_SPEED_EV));
     MenuPrint_Centered(buffer, 27, 11, 18);
 
-    buffer = AlignInt1InMenuWindow(buffer, GetMonData(mon, MON_DATA_HP), 24, 1);
-    *buffer++ = CHAR_SLASH;
-    buffer = AlignInt1InMenuWindow(buffer, GetMonData(mon, MON_DATA_MAX_HP), 48, 1);
+    if (sGunkStatView != 0)
+    {
+        buffer = StringCopy(buffer, sGunkStatView == 1 ? sGunkText_IV : sGunkText_EV);
+        buffer = AlignInt1InMenuWindow(buffer, GunkSummaryStat(mon, MON_DATA_HP, MON_DATA_HP_IV, MON_DATA_HP_EV), 48, 1);
+    }
+    else
+    {
+        buffer = AlignInt1InMenuWindow(buffer, GetMonData(mon, MON_DATA_HP), 24, 1);
+        *buffer++ = CHAR_SLASH;
+        buffer = AlignInt1InMenuWindow(buffer, GetMonData(mon, MON_DATA_MAX_HP), 48, 1);
+    }
 
     Menu_PrintTextPixelCoords(gStringVar1, 126, 56, 1);
 }

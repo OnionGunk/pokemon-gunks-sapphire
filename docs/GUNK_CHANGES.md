@@ -1,0 +1,51 @@
+# Pokémon Gunk's Sapphire Version: change list
+
+Gunk's Sapphire and Gunk's Ruby are one codebase on pret's pokeruby (see `ENGINE.md`). The features are Gunk's
+Ruby's commits (`Gunk's Ruby: …`), cherry-picked unchanged; Gunk's Sapphire adds its title and docs, and
+sends back fixes its tests find (`Gunk's Ruby fix: …`). Gunk's Ruby's own change list has the implementation
+notes for each feature; this list has the **verdicts for Sapphire and what was checked on the Sapphire build**.
+
+- **port**: same feature as Gunk's Platinum. **adapt**: same goal, different shape on the GBA. **skip**: not needed.
+- Status: ✅ checked in the emulator on Gunk's Sapphire, 🟡 built and passes the save suite, not yet exercised,
+  ⏳ planned.
+
+Checks: `C:\Projects\sapphire-tools\emu\suite` — `suite.py` (save safety), `features.py` (in-game feature
+checks), `story.py` (scripted play from a new game through Mom's gifts).
+
+## Identity
+
+| # | Change | Verdict | Sapphire | Status |
+|---|---|---|---|---|
+| 1 | ROM header title `GUNK SA` (game code stays `AXPE`: 128 KB flash + RTC) | port | `TITLE` in `config.mk`. | ✅ |
+| 2 | Title-screen logo | adapt | Needs art. | ⏳ |
+
+## Save safety
+
+| # | Change | Verdict | Sapphire | Status |
+|---|---|---|---|---|
+| 3 | Save suite | port | **save_cycles** (3 saves, power cycle, CONTINUE lands on the last), **torn_save** (the flash cut at every sector of a save's write order: not written, erased, half-programmed; each must CONTINUE into the older save, or the new one when complete, and keep running), **backup_recovery** (either slot with a bad checksum or erased: the other loads), **dry_rtc** (the RTC reports a power failure: CONTINUE, save, power cycle, CONTINUE). Vanilla Sapphire passes 4/4 too, as the baseline. | ✅ |
+| 4 | Dead clock battery: time keeps moving | new | With the RTC reporting a power failure, vanilla stops the clock at 2000-01-01, which stops berries, tides and daily events. The game now runs the clock from play time instead; the battery warning stays. Save side checked by dry_rtc; berries/tides not yet watched in game. | 🟡 |
+| 5 | 16 PC boxes (14 in vanilla) | adapt | 15 sectors per save slot, Hall of Fame moved to sectors 30-31 (`PC_BOXES_PLAN.md`). **Vanilla saves don't load.** | 🟡 |
+
+## Quality of life
+
+| # | Change | Verdict | What was checked on Sapphire | Status |
+|---|---|---|---|---|
+| 6 | INSTANT text; new games on FAST | port | A field message prints in 3 frames (65 at FAST); INSTANT is picked and saved in Options; new games start on FAST. | ✅ |
+| 7 | EXP bar twice as fast | port | Seen in battle (Route 101), not measured. | 🟡 |
+| 8 | Auto-run with the Running Shoes, hold B to walk | port | Outdoors: 3 tiles in 32 frames without B, 2 holding B, 2 without the shoes. (Sapphire doesn't allow running indoors.) | ✅ |
+| 9 | Repel prompt | port | YES uses another Super Repel (200 steps, one fewer in the bag), NO leaves both, none left shows the original message. | ✅ |
+| 10 | Endless Repel key item | adapt | Switched from the bag and from L; the ON/OFF message now waits for a button (fix sent to Ruby). | ✅ |
+| 11 | Reusable TMs | port | TM10 taught from the bag: Hidden Power learned, TM10 still there. | ✅ |
+| 12 | Two registered items (Select and L) | adapt | L and Select each use their item. | ✅ |
+| 13 | Bag sorting (Start) | port | The Items pocket sorted by item number. | ✅ |
+| 14 | IV/EV view (A on the summary's skills page) | adapt | | 🟡 |
+| 15 | Exp. All key item | adapt | Route 101 wild battle with two Pokémon: battler +25 EXP, the one that didn't battle +12 EXP and the EVs. | ✅ |
+| 16 | Vitamins to 252 EVs | port | 26 HP Ups: HP EVs 0 → 252; the 27th has no effect and isn't used up. | ✅ |
+| 17 | Trade evolutions | port | Kadabra Lv 35 + Rare Candy → Alakazam; holding an Everstone it stays Kadabra; Onix + Metal Coat from the bag → Steelix. (The Metal Coat case found the trade items had no item effect; Ruby fixed it in 8f3197f19.) | ✅ |
+| 18 | HM moves without teaching | port | Needs a badge state. | 🟡 |
+| 19 | Move Tutor in every PC | adapt | | 🟡 |
+| 20 | Eggs hatch twice as fast | port | | 🟡 |
+| 21 | DexNav key item | adapt | On Route 101 from Select: the list (unseen as ?????), a Wurmple hidden 4 tiles away, a battle with it on stepping in, chain 1 after it. | ✅ |
+| 22 | Mom's gifts | adapt | With the Running Shoes Mom gives the Endless Repel, Exp. All and DexNav (seen in the story run). | ✅ |
+| 23 | Following Pokémon | adapt | Sprites from pokeemerald-expansion. | 🟡 |

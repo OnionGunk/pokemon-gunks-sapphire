@@ -58,9 +58,10 @@ places. That's acceptable before the real playthrough starts; it goes in the rel
 - In the emulator: boxes 15-16 in the PC (move, withdraw, deposit, rename, wallpaper), wrapping from 16 to 1, a catch
   with a full party going to box 15/16, the Hall of Fame record surviving a save.
 
-## Sapphire note: a layout that keeps old saves loading
+## Alternative considered: a layout that keeps old saves loading
 
-This plan is shared with Gunk's Ruby (same code). One alternative from the Sapphire side, not yet decided:
+Built as planned above (Gunk's Ruby f00d71bea, shared by Gunk's Sapphire). An alternative proposed from the Sapphire
+side, kept here in case loading vanilla saves becomes a goal:
 keep sectors 0-29 exactly as vanilla and give each slot its sixteenth-box sector **outside** the rotation —
 slot A's extension in sector 30, slot B's in sector 31, written **after** the slot's 14 normal sectors.
 

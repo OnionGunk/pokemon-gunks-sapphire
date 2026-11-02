@@ -23,9 +23,9 @@ checks), `story.py` (scripted play from a new game through Mom's gifts).
 
 | # | Change | Verdict | Sapphire | Status |
 |---|---|---|---|---|
-| 3 | Save suite | port | **save_cycles** (3 saves, power cycle, CONTINUE lands on the last), **torn_save** (the flash cut at every sector of a save's write order: not written, erased, half-programmed; each must CONTINUE into the older save, or the new one when complete, and keep running), **backup_recovery** (either slot with a bad checksum or erased: the other loads), **dry_rtc** (the RTC reports a power failure: CONTINUE, save, power cycle, CONTINUE). Vanilla Sapphire passes 4/4 too, as the baseline. | ✅ |
+| 3 | Save suite | port | **save_cycles** (3 saves, power cycle, CONTINUE lands on the last), **torn_save** (the flash cut at every sector of a save's write order: not written, erased, half-programmed; each must CONTINUE into the older save, or the new one when complete, and keep running), **backup_recovery** (either slot with a bad checksum or erased: the other loads), **dry_rtc** (the RTC reports a power failure: CONTINUE, save, power cycle, CONTINUE). Gunk's Sapphire 4/4 (45 cut points with 15 sectors per slot); vanilla Sapphire 4/4 too, as the baseline. | ✅ |
 | 4 | Dead clock battery: time keeps moving | new | With the RTC reporting a power failure, vanilla stops the clock at 2000-01-01, which stops berries, tides and daily events. The game now runs the clock from play time instead; the battery warning stays. Save side checked by dry_rtc; berries/tides not yet watched in game. | 🟡 |
-| 5 | 16 PC boxes (14 in vanilla) | adapt | 15 sectors per save slot, Hall of Fame moved to sectors 30-31 (`PC_BOXES_PLAN.md`). **Vanilla saves don't load.** | 🟡 |
+| 5 | 16 PC boxes (14 in vanilla) | adapt | 15 sectors per save slot, Hall of Fame moved to sectors 30-31 (`PC_BOXES_PLAN.md`). **Vanilla saves don't load.** The save suite passes on this layout; boxes 15-16 not yet opened in the PC. | 🟡 |
 
 ## Quality of life
 
@@ -40,7 +40,7 @@ checks), `story.py` (scripted play from a new game through Mom's gifts).
 | 12 | Two registered items (Select and L) | adapt | L and Select each use their item. | ✅ |
 | 13 | Bag sorting (Start) | port | The Items pocket sorted by item number. | ✅ |
 | 14 | IV/EV view (A on the summary's skills page) | adapt | | 🟡 |
-| 15 | Exp. All key item | adapt | Route 101 wild battle with two Pokémon: battler +25 EXP, the one that didn't battle +12 EXP and the EVs. | ✅ |
+| 15 | Exp. All key item | adapt | Route 101 wild battles with two Pokémon: the one that didn't battle gets half the battler's EXP (e.g. +17 / +8) and the EVs. | ✅ |
 | 16 | Vitamins to 252 EVs | port | 26 HP Ups: HP EVs 0 → 252; the 27th has no effect and isn't used up. | ✅ |
 | 17 | Trade evolutions | port | Kadabra Lv 35 + Rare Candy → Alakazam; holding an Everstone it stays Kadabra; Onix + Metal Coat from the bag → Steelix. (The Metal Coat case found the trade items had no item effect; Ruby fixed it in 8f3197f19.) | ✅ |
 | 18 | HM moves without teaching | port | Needs a badge state. | 🟡 |

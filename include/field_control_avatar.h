@@ -15,8 +15,8 @@ struct FieldInput
     u8 input_field_1_1:1;
     u8 input_field_1_2:1;
     u8 input_field_1_3:1;
-    u8 input_field_1_4:1;
-    u8 input_field_1_5:1;
+    u8 pressedLButton:1; // Gunk: second registered item
+    u8 pressedRButton:1; // Gunk: DexNav search
     u8 input_field_1_6:1;
     u8 input_field_1_7:1;
     u8 dpadDirection;

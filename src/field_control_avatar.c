@@ -126,6 +126,8 @@ void ClearPlayerFieldInput(struct FieldInput *input)
     input->input_field_1_1 = 0;
     input->input_field_1_2 = 0;
     input->input_field_1_3 = 0;
+    input->pressedLButton = 0;
+    input->pressedRButton = 0;
     input->dpadDirection = 0;
 }
 
@@ -147,6 +149,11 @@ void GetPlayerFieldInput(struct FieldInput *input, u16 newKeys, u16 heldKeys)
                 input->pressedAButton = TRUE;
             if (newKeys & B_BUTTON)
                 input->pressedBButton = TRUE;
+            // Gunk: L uses the second registered item (not in the L=A button mode)
+            if ((newKeys & L_BUTTON) && gSaveBlock2.optionsButtonMode != OPTIONS_BUTTON_MODE_L_EQUALS_A)
+                input->pressedLButton = TRUE;
+            if (newKeys & R_BUTTON)
+                input->pressedRButton = TRUE;
         }
 
         if (heldKeys & (DPAD_UP | DPAD_DOWN | DPAD_LEFT | DPAD_RIGHT))
@@ -265,6 +272,8 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
         return TRUE;
     }
     if (input->pressedSelectButton && UseRegisteredKeyItem() == TRUE)
+        return TRUE;
+    if (input->pressedLButton && GunkUseSecondRegisteredItem() == TRUE)
         return TRUE;
 
 #if DEBUG

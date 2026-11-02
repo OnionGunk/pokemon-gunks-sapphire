@@ -1,4 +1,6 @@
 #include "global.h"
+#include "event_data.h"
+#include "constants/vars.h"
 #include "berry.h"
 #include "berry_tag_screen.h"
 #include "data2.h"
@@ -1606,6 +1608,27 @@ static bool8 sub_80A4F74(u8 a)
     return retVal;
 }
 
+// Gunk: Start sorts the open pocket by item number (the game keeps Berries and TMs sorted already)
+static void GunkSortPocket(void)
+{
+    struct ItemSlot *slots = gCurrentBagPocketItemSlots;
+    u16 n = gBagPocketScrollStates[sCurrentBagPocket].numSlots;
+    u16 i, j;
+
+    for (i = 1; i < n; i++)
+    {
+        struct ItemSlot slot = slots[i];
+
+        for (j = i; j > 0 && slots[j - 1].itemId > slot.itemId; j--)
+            slots[j] = slots[j - 1];
+        slots[j] = slot;
+    }
+    PlaySE(SE_SELECT);
+    sub_80A763C();
+    sub_80A7528(0);
+    ItemListMenu_InitMenu();
+}
+
 static void sub_80A50C8(u8 taskId)
 {
     s16 *taskData = gTasks[taskId].data;
@@ -1644,6 +1667,15 @@ static void sub_80A50C8(u8 taskId)
                 }
                 sub_808B5B4(taskId);
             }
+            return;
+        }
+
+        if (JOY_NEW(START_BUTTON) && taskData[10] == 0
+         && !(sCurrentBagPocket == BAG_POCKET_BERRIES || sCurrentBagPocket == BAG_POCKET_TMs_HMs)
+         && (sReturnLocation == RETURN_TO_FIELD_0 || sReturnLocation == RETURN_TO_BATTLE))
+        {
+            GunkSortPocket();
+            sub_808B5B4(taskId);
             return;
         }
 
@@ -2257,9 +2289,15 @@ static void HandlePopupMenuAction_Register(u8 taskId)
         RemoveSelectIconFromRegisteredItem();
         gSaveBlock1.registeredItem = 0;
     }
+    else if (VarGet(VAR_GUNK_REGISTERED_2) == gSpecialVar_ItemId)
+    {
+        // Gunk: un-register the item on L
+        VarSet(VAR_GUNK_REGISTERED_2, ITEM_NONE);
+    }
     else
     {
         AddSelectIconToRegisteredItem();
+        VarSet(VAR_GUNK_REGISTERED_2, gSaveBlock1.registeredItem); // Gunk: the previous one moves to L
         gSaveBlock1.registeredItem = gSpecialVar_ItemId;
     }
     sub_80A7528(0);
@@ -2736,28 +2774,45 @@ static void OnItemSelect_PC(u8 taskId)
     }
 }
 
+static bool32 UseRegisteredItem(u16 item)
+{
+    u8 taskId;
+
+    LockPlayerFieldControls();
+    FreezeObjectEvents();
+    sub_80594C0();
+    sub_80597F4();
+    gSpecialVar_ItemId = item;
+    taskId = CreateTask(ItemId_GetFieldFunc(item), 8);
+    gTasks[taskId].data[2] = 1;
+    return TRUE;
+}
+
 bool32 UseRegisteredKeyItem(void)
 {
     HideMapNamePopup();
     if (gSaveBlock1.registeredItem != ITEM_NONE)
     {
         if (CheckBagHasItem(gSaveBlock1.registeredItem, 1) == TRUE)
-        {
-            u8 taskId;
-
-            LockPlayerFieldControls();
-            FreezeObjectEvents();
-            sub_80594C0();
-            sub_80597F4();
-            gSpecialVar_ItemId = gSaveBlock1.registeredItem;
-            taskId = CreateTask(ItemId_GetFieldFunc(gSaveBlock1.registeredItem), 8);
-            gTasks[taskId].data[2] = 1;
-            return TRUE;
-        }
+            return UseRegisteredItem(gSaveBlock1.registeredItem);
         gSaveBlock1.registeredItem = 0;
     }
     ScriptContext_SetupScript(Event_NoRegisteredItem);
     return TRUE;
+}
+
+// Gunk: two registered items. Registering a new one moves the previous one to L.
+bool32 GunkUseSecondRegisteredItem(void)
+{
+    u16 item = VarGet(VAR_GUNK_REGISTERED_2);
+
+    if (item == ITEM_NONE)
+        return FALSE;  // nothing on L: leave the button alone
+    HideMapNamePopup();
+    if (CheckBagHasItem(item, 1) == TRUE)
+        return UseRegisteredItem(item);
+    VarSet(VAR_GUNK_REGISTERED_2, ITEM_NONE);
+    return FALSE;
 }
 
 static void sub_80A6D98(void)

@@ -1,4 +1,6 @@
 #include "global.h"
+#include "event_data.h"
+#include "constants/vars.h"
 #include "constants/hold_effects.h"
 #include "item.h"
 #include "constants/items.h"
@@ -408,6 +410,12 @@ static void CompactPCItems(void)
 
 void SwapRegisteredBike(void)
 {
+    // Gunk: the second registered item too
+    if (VarGet(VAR_GUNK_REGISTERED_2) == ITEM_MACH_BIKE)
+        VarSet(VAR_GUNK_REGISTERED_2, ITEM_ACRO_BIKE);
+    else if (VarGet(VAR_GUNK_REGISTERED_2) == ITEM_ACRO_BIKE)
+        VarSet(VAR_GUNK_REGISTERED_2, ITEM_MACH_BIKE);
+
     switch (gSaveBlock1.registeredItem)
     {
     case ITEM_MACH_BIKE:

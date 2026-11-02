@@ -454,7 +454,7 @@ void sub_8099584(u8 a0, u8 a1)
 
 void sub_809960C(u8 a0, u8 a1)
 {
-    if (a0 == 14)
+    if (a0 == PC_PARTY_BOX)
     {
         gPokemonStorageSystemPtr->unk_1038[a1] = gPokemonStorageSystemPtr->unk_1034;
         gPokemonStorageSystemPtr->unk_1038[a1]->oam.priority = 1;
@@ -472,7 +472,7 @@ void sub_809960C(u8 a0, u8 a1)
 
 void sub_80996B0(u8 a0, u8 a1)
 {
-    if (a0 == 14)
+    if (a0 == PC_PARTY_BOX)
         gPokemonStorageSystemPtr->unk_10c8 = gPokemonStorageSystemPtr->unk_1038 + a1;
     else
         gPokemonStorageSystemPtr->unk_10c8 = gPokemonStorageSystemPtr->unk_1050 + a1;

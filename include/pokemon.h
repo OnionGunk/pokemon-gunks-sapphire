@@ -320,12 +320,17 @@ struct BattleMove
     u8 flags;
 };
 
+// Gunk: 16 boxes (14 in vanilla; 16 is what one more flash sector per save slot holds, docs/PC_BOXES_PLAN.md)
+#define TOTAL_BOXES_COUNT 16
+// The PC and the Lottery Corner use one past the last box for the party
+#define PC_PARTY_BOX TOTAL_BOXES_COUNT
+
 struct PokemonStorage
 {
     /*0x0000*/ u8 currentBox;
-    /*0x0004*/ struct BoxPokemon boxes[14][30];
-    /*0x8344*/ u8 boxNames[14][9];
-    /*0x83c2*/ u8 wallpaper[14];
+    /*0x0004*/ struct BoxPokemon boxes[TOTAL_BOXES_COUNT][30];
+               u8 boxNames[TOTAL_BOXES_COUNT][9];
+               u8 wallpaper[TOTAL_BOXES_COUNT];
 };
 
 struct SpindaSpot

@@ -78,6 +78,7 @@ static EWRAM_DATA u32 gLastSaveSectorStatus = 0; // used but in an unferenced fu
  * Sector Layout:
  * 
  * Sectors 0 - 13:      Save Slot 1
+ * Gunk (16 PC boxes): sectors 0-14 save slot 1, 15-29 save slot 2, 30-31 Hall of Fame.
  * Sectors 14 - 27:     Save Slot 2
  * Sectors 28 - 29:     Hall of Fame
  * Sectors 30 - 31:     e-Reader battle tower data, maybe?
@@ -90,9 +91,9 @@ static EWRAM_DATA u32 gLastSaveSectorStatus = 0; // used but in an unferenced fu
  * 14 sectors get written anyway.
  */
 
-#define HALL_OF_FAME_SECTOR 28
+#define HALL_OF_FAME_SECTOR 30 // Gunk: 28 in vanilla
 
-#define NUM_SECTORS_PER_SAVE_SLOT 14  // Number of sectors occupied by a save slot
+#define NUM_SECTORS_PER_SAVE_SLOT 15  // Number of sectors occupied by a save slot (Gunk: 14 in vanilla)
 #define NUM_HALL_OF_FAME_SECTORS 2
 
 // Divide save blocks into individual chunks to be written to flash sectors
@@ -123,7 +124,13 @@ static const struct SaveBlockChunk sSaveBlockChunks[] =
     SAVEBLOCK_CHUNK(gPokemonStorage, 6),
     SAVEBLOCK_CHUNK(gPokemonStorage, 7),
     SAVEBLOCK_CHUNK(gPokemonStorage, 8),
+    SAVEBLOCK_CHUNK(gPokemonStorage, 9), // Gunk: boxes 15-16
 };
+
+// Gunk: the boxes must fit their 10 chunks, and the save blocks their sectors
+typedef char GunkStorageFits[sizeof(struct PokemonStorage) <= 10 * SECTOR_DATA_SIZE ? 1 : -1];
+typedef char GunkSaveBlock2Fits[sizeof(struct SaveBlock2) <= SECTOR_DATA_SIZE ? 1 : -1];
+typedef char GunkSaveBlock1Fits[sizeof(struct SaveBlock1) <= 4 * SECTOR_DATA_SIZE ? 1 : -1];
 
 static const struct SaveBlockChunk sHallOfFameChunks[] =
 {

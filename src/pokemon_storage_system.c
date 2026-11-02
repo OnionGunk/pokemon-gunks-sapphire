@@ -383,19 +383,19 @@ void ResetPokemonStorageSystem(void)
     u16 boxMon;
 
     gPokemonStorage.currentBox = 0;
-    for (boxId = 0; boxId < 14; boxId++)
+    for (boxId = 0; boxId < TOTAL_BOXES_COUNT; boxId++)
     {
         for (boxMon = 0; boxMon < 30; boxMon++)
         {
             ZeroBoxMonData(gPokemonStorage.boxes[boxId] + boxMon);
         }
     }
-    for (boxId = 0; boxId < 14; boxId++)
+    for (boxId = 0; boxId < TOTAL_BOXES_COUNT; boxId++)
     {
         u8 *dest = StringCopy(gPokemonStorage.boxNames[boxId], gPCText_BOX);
         ConvertIntToDecimalStringN(dest, boxId + 1, STR_CONV_MODE_LEFT_ALIGN, 2);
     }
-    for (boxId = 0; boxId < 14; boxId++)
+    for (boxId = 0; boxId < TOTAL_BOXES_COUNT; boxId++)
     {
         gPokemonStorage.wallpaper[boxId] = boxId & 0x03;
     }
@@ -714,14 +714,14 @@ void sub_809658C(void)
 
 void sub_80965F8(void)
 {
-    if (++gUnknown_02038478->curBox > 13)
+    if (++gUnknown_02038478->curBox >= TOTAL_BOXES_COUNT)
         gUnknown_02038478->curBox = 0;
     sub_809665C();
 }
 
 void sub_809662C(void)
 {
-    gUnknown_02038478->curBox = (gUnknown_02038478->curBox == 0 ? 13 : gUnknown_02038478->curBox - 1);
+    gUnknown_02038478->curBox = (gUnknown_02038478->curBox == 0 ? TOTAL_BOXES_COUNT - 1 : gUnknown_02038478->curBox - 1);
     sub_809665C();
 }
 

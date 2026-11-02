@@ -1000,7 +1000,7 @@ u8 SendMonToPC(struct Pokemon *mon)
         }
 
         i++;
-        if (i == 14)
+        if (i == TOTAL_BOXES_COUNT)
             i = 0;
     } while (i != gPokemonStorage.currentBox);
 
@@ -1142,7 +1142,7 @@ u8 PokemonStorageFull(void)
 {
     s32 i, j;
 
-    for (i = 0; i < 14; i++)
+    for (i = 0; i < TOTAL_BOXES_COUNT; i++)
         for (j = 0; j < 30; j++)
             if (GetBoxMonData(&gPokemonStorage.boxes[i][j], MON_DATA_SPECIES, NULL) == SPECIES_NONE)
                 return 0;

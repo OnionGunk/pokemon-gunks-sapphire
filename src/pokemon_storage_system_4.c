@@ -396,7 +396,7 @@ s8 sub_8099D90(u8 boxId)
 
     for (i = 0; curBox != boxId; i++)
     {
-        if (++curBox >= 14)
+        if (++curBox >= TOTAL_BOXES_COUNT)
             curBox = 0;
     }
     return i <= 6 ? 1 : -1;
@@ -1209,7 +1209,7 @@ bool8 sub_809B24C(void)
             switch (sBoxCursorArea)
             {
                 case 1:
-                    gPokemonStorageSystemPtr->unk_12a9 = 14;
+                    gPokemonStorageSystemPtr->unk_12a9 = PC_PARTY_BOX;
                     break;
                 case 0:
                     gPokemonStorageSystemPtr->unk_12a9 = get_preferred_box();
@@ -1269,7 +1269,7 @@ void sub_809B384(void)
     switch (sBoxCursorArea)
     {
         case 1:
-            sub_809B44C(14, sBoxCursorPosition);
+            sub_809B44C(PC_PARTY_BOX, sBoxCursorPosition);
             sub_8099584(0, sBoxCursorPosition);
             break;
         case 0:
@@ -1288,8 +1288,8 @@ void sub_809B3E0(void)
     switch (sBoxCursorArea)
     {
         case 1:
-            SetPlacedMonData(14, sBoxCursorPosition);
-            sub_809960C(14, sBoxCursorPosition);
+            SetPlacedMonData(PC_PARTY_BOX, sBoxCursorPosition);
+            sub_809960C(PC_PARTY_BOX, sBoxCursorPosition);
             break;
         case 0:
             boxId = get_preferred_box();
@@ -1309,7 +1309,7 @@ void sub_809B440(void)
 
 void sub_809B44C(u8 a0, u8 a1)
 {
-    if (a0 == 14)
+    if (a0 == PC_PARTY_BOX)
         gPokemonStorageSystemPtr->unk_25b4 = gPlayerParty[sBoxCursorPosition];
     else
         ExpandBoxMon(gPokemonStorage.boxes[a0] + a1, &gPokemonStorageSystemPtr->unk_25b4);
@@ -1320,7 +1320,7 @@ void sub_809B44C(u8 a0, u8 a1)
 
 void SetPlacedMonData(u8 boxId, u8 position)
 {
-    if (boxId == 14)
+    if (boxId == PC_PARTY_BOX)
     {
         gPlayerParty[position] = gPokemonStorageSystemPtr->unk_25b4;
     }
@@ -1333,7 +1333,7 @@ void SetPlacedMonData(u8 boxId, u8 position)
 
 void sub_809B548(u8 a0, u8 a1)
 {
-    if (a0 == 14)
+    if (a0 == PC_PARTY_BOX)
         ZeroMonData(gPlayerParty + a1);
     else
         ZeroBoxMonData(gPokemonStorage.boxes[a0] + a1);
@@ -1341,7 +1341,7 @@ void sub_809B548(u8 a0, u8 a1)
 
 void SetShiftedMonData(u8 boxId, u8 position)
 {
-    if (boxId == 14)
+    if (boxId == PC_PARTY_BOX)
         gPokemonStorageSystemPtr->unk_2618 = gPlayerParty[position];
     else
         ExpandBoxMon(gPokemonStorage.boxes[boxId] + position, &gPokemonStorageSystemPtr->unk_2618);
@@ -1365,7 +1365,7 @@ bool8 sub_809B62C(u8 boxId)
     }
     else
     {
-        sub_809B44C(14, sBoxCursorPosition);
+        sub_809B44C(PC_PARTY_BOX, sBoxCursorPosition);
         SetPlacedMonData(boxId, monIdx);
         sub_8099520(sBoxCursorPosition);
     }
@@ -1414,7 +1414,7 @@ void sub_809B760(void)
     {
         u8 boxId;
         if (sBoxCursorArea == 1)
-            boxId = 14;
+            boxId = PC_PARTY_BOX;
         else
             boxId = get_preferred_box();
         sub_809B548(boxId, sBoxCursorPosition);
@@ -1442,7 +1442,7 @@ void sub_809B7D4(void)
         if (sBoxCursorArea == 1)
         {
             gPokemonStorageSystemPtr->unk_2618 = gPlayerParty[sBoxCursorPosition];
-            gPokemonStorageSystemPtr->unk_2682 = 14;
+            gPokemonStorageSystemPtr->unk_2682 = PC_PARTY_BOX;
         }
         else
         {
@@ -1481,7 +1481,7 @@ s8 sub_809B960(void)
         case 0:
             for (i = 0; i < PARTY_SIZE; i++)
             {
-                if (gPokemonStorageSystemPtr->unk_2682 != 14 || gPokemonStorageSystemPtr->unk_2683 != i)
+                if (gPokemonStorageSystemPtr->unk_2682 != PC_PARTY_BOX || gPokemonStorageSystemPtr->unk_2683 != i)
                 {
                     knownMoves = GetMonData(gPlayerParty + i, MON_DATA_KNOWN_MOVES, gPokemonStorageSystemPtr->unk_2686);
                     if (knownMoves & 1)
@@ -1516,7 +1516,7 @@ s8 sub_809B960(void)
                 if (++gPokemonStorageSystemPtr->unk_2681 >= 30)
                 {
                     gPokemonStorageSystemPtr->unk_2681 = 0;
-                    if (++gPokemonStorageSystemPtr->unk_2680 >= 14)
+                    if (++gPokemonStorageSystemPtr->unk_2680 >= TOTAL_BOXES_COUNT)
                     {
                         gPokemonStorageSystemPtr->unk_267d = 1;
                         gPokemonStorageSystemPtr->unk_267c = 0;
@@ -1544,7 +1544,7 @@ void sub_809BBC0(void)
 {
     if (gUnknown_020384E6)
     {
-        if (gUnknown_020384E7 == 14)
+        if (gUnknown_020384E7 == PC_PARTY_BOX)
             gPokemonStorageSystemPtr->unk_25b4 = gUnknown_02038480;
         else
             gPokemonStorageSystemPtr->unk_25b4.box = gUnknown_02038480.box;

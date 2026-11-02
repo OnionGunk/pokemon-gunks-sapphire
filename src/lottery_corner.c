@@ -75,7 +75,7 @@ void PickLotteryCornerTicket(void)
                 if (numMatchingDigits > gSpecialVar_0x8004 && numMatchingDigits > 1)
                 {
                     gSpecialVar_0x8004 = numMatchingDigits - 1;
-                    box = 14;
+                    box = PC_PARTY_BOX;
                     slot = i;
                 }
             }
@@ -85,7 +85,7 @@ void PickLotteryCornerTicket(void)
     }
 
     // player has 14 boxes.
-    for (i = 0; i < 14; i++)
+    for (i = 0; i < TOTAL_BOXES_COUNT; i++)
     {
         // player has 30 slots per box.
         for (j = 0; j < 30; j++)
@@ -113,7 +113,7 @@ void PickLotteryCornerTicket(void)
     {
         gSpecialVar_0x8005 = sLotteryPrizes[gSpecialVar_0x8004 - 1];
 
-        if (box == 14)
+        if (box == PC_PARTY_BOX)
         {
             gSpecialVar_0x8006 = 0;
             GetMonData(&gPlayerParty[slot], MON_DATA_NICKNAME, gStringVar1);

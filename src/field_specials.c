@@ -1767,7 +1767,7 @@ bool8 IsStarterInParty(void)
 bool8 CheckFreePokemonStorageSpace(void)
 {
     u16 i, j;
-    for (i=0; i<14; i++)
+    for (i=0; i<TOTAL_BOXES_COUNT; i++)
     {
         for (j=0; j<30; j++)
         {

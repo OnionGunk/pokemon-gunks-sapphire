@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "constants/items.h"
 #include "constants/item_effects.h"
 #include "constants/moves.h"
@@ -4308,7 +4309,9 @@ u8 GetItemEffectType(u16 item)
 #endif
 
     // Read the item's effect properties.
-    if (item == ITEM_ENIGMA_BERRY)
+    if (GunkTradeItemEffect(item) != NULL)
+        itemEffect = GunkTradeItemEffect(item); // Gunk: trade items as evolution stones
+    else if (item == ITEM_ENIGMA_BERRY)
         itemEffect = gSaveBlock1.enigmaBerry.itemEffect;
     else
         itemEffect = gItemEffectTable[item - ITEM_POTION];

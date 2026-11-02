@@ -12,6 +12,7 @@ void GunkToggleSetting(u16 bit);
 u16 GunkCheckLastRepel(void);
 void GunkUseLastRepel(void);
 bool8 GunkCanUseFieldMove(struct Pokemon *mon, u16 move);
+const u8 *GunkTradeItemEffect(u16 item);
 bool8 GunkCanUseFieldMoveUntaught(struct Pokemon *mon, u16 move);
 
 // DexNav (src/gunk_dexnav.c)

@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "constants/battle.h"
 #include "constants/hold_effects.h"
 #include "constants/items.h"
@@ -100,12 +101,15 @@ bool8 PokemonUseItemEffects(struct Pokemon *pkmn, u16 item, u8 partyIndex, u8 mo
         battleId = 4;
     }
 
-    if (!ITEM_HAS_EFFECT(item))
+    if (GunkTradeItemEffect(item) != NULL)
+    {
+        itemEffect = GunkTradeItemEffect(item); // Gunk: trade items as evolution stones
+    }
+    else if (!ITEM_HAS_EFFECT(item))
         return TRUE;
-    if (gItemEffectTable[item - 13] == NULL && item != ITEM_ENIGMA_BERRY)
+    else if (gItemEffectTable[item - 13] == NULL && item != ITEM_ENIGMA_BERRY)
         return TRUE;
-
-    if (item == ITEM_ENIGMA_BERRY)
+    else if (item == ITEM_ENIGMA_BERRY)
     {
         if (gMain.inBattle)
             itemEffect = gEnigmaBerries[gActiveBattler].itemEffect;

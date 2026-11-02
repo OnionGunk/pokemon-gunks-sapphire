@@ -4,6 +4,7 @@
 #include "item.h"
 #include "pokemon.h"
 #include "party_menu.h"
+#include "constants/item_effects.h"
 #include "constants/moves.h"
 #include "constants/species.h"
 #include "string_util.h"
@@ -73,4 +74,23 @@ bool8 GunkCanUseFieldMoveUntaught(struct Pokemon *mon, u16 move)
 bool8 GunkCanUseFieldMove(struct Pokemon *mon, u16 move)
 {
     return pokemon_has_move(mon, move) || GunkCanUseFieldMoveUntaught(mon, move);
+}
+
+// Trade evolutions without trading: the trade items work like evolution stones. They sit past the end of
+// gItemEffectTable (ITEM_HAS_EFFECT), so they get an evolution-stone effect here.
+static const u8 sGunkEvoStoneEffect[6] = {0, 0, 0, 0, ITEM4_EVO_STONE, 0};
+
+const u8 *GunkTradeItemEffect(u16 item)
+{
+    switch (item)
+    {
+    case ITEM_KINGS_ROCK:
+    case ITEM_METAL_COAT:
+    case ITEM_DRAGON_SCALE:
+    case ITEM_UP_GRADE:
+    case ITEM_DEEP_SEA_TOOTH:
+    case ITEM_DEEP_SEA_SCALE:
+        return sGunkEvoStoneEffect;
+    }
+    return NULL;
 }

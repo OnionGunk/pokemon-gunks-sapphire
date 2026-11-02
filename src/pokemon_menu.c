@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "easy_chat.h"
 #include "pokemon.h"
 #include "pokemon_menu.h"
@@ -213,6 +214,15 @@ static void sub_8089A8C(void)
                     break;
                 }
             }
+        }
+        // Gunk: HM field moves it could learn (HM in the bag), up to 4 field moves in all
+        for (tableID = 0; sPokeMenuFieldMoves[tableID] != sFieldMovesTerminator && sPokeMenuOptionsNo < 4; tableID++)
+        {
+            struct Pokemon *mon = &gPlayerParty[gLastFieldPokeMenuOpened];
+            u16 move = sPokeMenuFieldMoves[tableID];
+
+            if (!pokemon_has_move(mon, move) && GunkCanUseFieldMoveUntaught(mon, move))
+                AppendToList(sPokeMenuOptionsOrder, &sPokeMenuOptionsNo, tableID + POKEMENU_FIRST_FIELD_MOVE_ID);
         }
         AppendToList(sPokeMenuOptionsOrder, &sPokeMenuOptionsNo, POKEMENU_SUMMARY);
 

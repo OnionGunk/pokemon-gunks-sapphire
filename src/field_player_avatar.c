@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "bike.h"
 #include "event_data.h"
 #include "event_object_movement.h"
@@ -1104,7 +1105,7 @@ bool8 PartyHasMonWithSurf(void)
         {
             if (GetMonData(&gPlayerParty[i], MON_DATA_SPECIES) == SPECIES_NONE)
                 break;
-            if (pokemon_has_move(&gPlayerParty[i], MOVE_SURF))
+            if (GunkCanUseFieldMove(&gPlayerParty[i], MOVE_SURF)) // Gunk: HMs without teaching
                 return TRUE;
         }
     }

@@ -11,5 +11,7 @@ bool8 GunkSettingOn(u16 bit);
 void GunkToggleSetting(u16 bit);
 u16 GunkCheckLastRepel(void);
 void GunkUseLastRepel(void);
+bool8 GunkCanUseFieldMove(struct Pokemon *mon, u16 move);
+bool8 GunkCanUseFieldMoveUntaught(struct Pokemon *mon, u16 move);
 
 #endif // GUARD_GUNK_H

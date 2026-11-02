@@ -875,6 +875,7 @@ LittlerootTown_EventScript_GiveRunningShoes:: @ 814DD38
 	msgbox LittlerootTown_Text_GunkMomGifts, MSGBOX_DEFAULT
 	giveitem ITEM_ENDLESS_REPEL
 	giveitem ITEM_EXP_ALL
+	giveitem ITEM_DEXNAV
 	msgbox LittlerootTown_Text_ComeHomeIfAnythingHappens, MSGBOX_DEFAULT
 	closemessage
 	delay 30

@@ -23,6 +23,7 @@ void RotatePlayerAndExitItemfinder(u8);
 void ItemUseOutOfBattle_PokeblockCase(u8);
 void ItemUseOutOfBattle_CoinCase(u8);
 void ItemUseOutOfBattle_GunkToggle(u8);
+void ItemUseOutOfBattle_GunkDexNav(u8);
 void ItemUseOutOfBattle_SSTicket(u8);
 void ItemUseOutOfBattle_WailmerPail(u8);
 void ItemUseOutOfBattle_Medicine(u8);

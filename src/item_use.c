@@ -621,6 +621,22 @@ void ItemUseOutOfBattle_GunkToggle(u8 taskId)
     }
 }
 
+extern const u8 EventScript_GunkDexNav[];
+
+static void ItemUseOnFieldCB_GunkDexNav(u8 taskId)
+{
+    LockPlayerFieldControls();
+    ScriptContext_SetupScript(EventScript_GunkDexNav);
+    DestroyTask(taskId);
+}
+
+// Gunk: the DexNav opens its list in the field
+void ItemUseOutOfBattle_GunkDexNav(u8 taskId)
+{
+    gFieldItemUseCallback = ItemUseOnFieldCB_GunkDexNav;
+    SetUpItemUseOnFieldCallback(taskId);
+}
+
 void ItemUseOutOfBattle_CoinCase(u8 taskId)
 {
     ConvertIntToDecimalStringN(gStringVar1, GetCoins(), 0, 4);

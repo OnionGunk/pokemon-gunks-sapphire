@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "field_control_avatar.h"
 #include "battle_setup.h"
 #include "bike.h"
@@ -245,6 +246,8 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
         if (TryStartStepBasedScript(&position, metatileBehavior, playerDirection) == TRUE)
             return TRUE;
     }
+    if (input->checkStandardWildEncounter && GunkDexNavTryEncounter() == TRUE) // Gunk: DexNav patch
+        return TRUE;
     if (input->checkStandardWildEncounter && CheckStandardWildEncounter(metatileBehavior) == TRUE)
         return TRUE;
     if (input->input_field_0_4 && input->dpadDirection == playerDirection)
@@ -274,6 +277,8 @@ int ProcessPlayerFieldInput(struct FieldInput *input)
     if (input->pressedSelectButton && UseRegisteredKeyItem() == TRUE)
         return TRUE;
     if (input->pressedLButton && GunkUseSecondRegisteredItem() == TRUE)
+        return TRUE;
+    if (input->pressedRButton && GunkDexNavSearchAgain() == TRUE)
         return TRUE;
 
 #if DEBUG

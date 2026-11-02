@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "overworld.h"
 #include "battle_setup.h"
 #include "berry.h"
@@ -1224,6 +1225,7 @@ static void CB1_Overworld(void)
 
 static void OverworldBasic(void)
 {
+    GunkDexNavUpdate();
     ScriptContext_RunScript();
     RunTasks();
     AnimateSprites();

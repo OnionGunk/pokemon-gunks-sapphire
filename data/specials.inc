@@ -352,6 +352,10 @@ gSpecials::
 	def_special sub_80835D8
 	def_special GunkCheckLastRepel
 	def_special GunkUseLastRepel
+	def_special GunkDexNavPrepare
+	def_special ScriptMenu_GunkDexNav
+	def_special GunkDexNavStart
+	def_special GunkDexNavStartLast
 .ifdef GERMAN
 	def_special nullsub_814B200
 .endif

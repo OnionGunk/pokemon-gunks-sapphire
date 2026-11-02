@@ -967,6 +967,11 @@ static const u8 gItemDescription_EndlessRepel[] = _(
     "POKéMON away. USE\n"
     "switches it on/off.");
 
+static const u8 gItemDescription_DexNav[] = _(
+    "Finds the POKéMON\n"
+    "of an area. R in the\n"
+    "field: search again.");
+
 static const u8 gItemDescription_ExpAll[] = _(
     "POKéMON that didn't\n"
     "battle get half EXP.\n"

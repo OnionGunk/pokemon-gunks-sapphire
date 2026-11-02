@@ -1608,6 +1608,62 @@ Text_RepelWoreOffUseAnother:
 	.string "REPEL's effect wore off...\n"
 	.string "Use another {STR_VAR_2}?$"
 
+@ Gunk: DexNav
+EventScript_GunkDexNav::
+	lockall
+	special GunkDexNavPrepare
+	compare VAR_RESULT, 0
+	goto_if_eq EventScript_GunkDexNavNoneHere
+	message Text_GunkDexNavWhich
+	waitmessage
+	special ScriptMenu_GunkDexNav
+	waitstate
+	compare VAR_RESULT, MULTI_B_PRESSED
+	goto_if_eq EventScript_GunkDexNavClose
+	special GunkDexNavStart
+	goto EventScript_GunkDexNavResult
+	end
+
+EventScript_GunkDexNavAgain::
+	lockall
+	special GunkDexNavStartLast
+	goto EventScript_GunkDexNavResult
+	end
+
+EventScript_GunkDexNavResult:
+	compare VAR_RESULT, 0
+	goto_if_eq EventScript_GunkDexNavNoPatch
+	msgbox Text_GunkDexNavFound, MSGBOX_DEFAULT
+	goto EventScript_GunkDexNavClose
+	end
+
+EventScript_GunkDexNavNoneHere:
+	msgbox Text_GunkDexNavNoneHere, MSGBOX_DEFAULT
+	goto EventScript_GunkDexNavClose
+	end
+
+EventScript_GunkDexNavNoPatch:
+	msgbox Text_GunkDexNavNoPatch, MSGBOX_DEFAULT
+EventScript_GunkDexNavClose:
+	closemessage
+	releaseall
+	end
+
+Text_GunkDexNavWhich:
+	.string "DEXNAV: search for which POKéMON?$"
+
+Text_GunkDexNavFound:
+	.string "{STR_VAR_1} Lv. {STR_VAR_2} is in the grass!\n"
+	.string "{STR_VAR_3}$"
+
+Text_GunkDexNavNoneHere:
+	.string "There are no POKéMON in the grass\n"
+	.string "around here.$"
+
+Text_GunkDexNavNoPatch:
+	.string "No tall grass close enough.\n"
+	.string "Try somewhere else.$"
+
 Text_UsedAnotherRepel:
 	.string "{PLAYER} used the {STR_VAR_2}.$"
 

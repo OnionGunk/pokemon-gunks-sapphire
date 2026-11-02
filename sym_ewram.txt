@@ -384,3 +384,7 @@ gUnknown_02039760 = .; /* 2039760 */
     . += 0xC00;
 
 . = ALIGN(4); src/menu_cursor.o(ewram_data);
+
+/* Gunk */
+. = ALIGN(4); src/gunk_dexnav.o(ewram_data);
+. = ALIGN(4); src/script_menu.o(ewram_data);

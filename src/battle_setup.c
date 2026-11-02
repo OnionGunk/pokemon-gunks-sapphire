@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "battle_setup.h"
 #include "battle.h"
 #include "battle_transition.h"
@@ -621,6 +622,7 @@ void ScrSpecial_StartRegiBattle(void)
 
 static void CB2_EndWildBattle(void)
 {
+    GunkDexNavBattleEnded(gBattleOutcome);
     CpuFill16(0, (void *)BG_PLTT, BG_PLTT_SIZE);
     ResetOamRange(0, 128);
 

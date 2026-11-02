@@ -14,4 +14,16 @@ void GunkUseLastRepel(void);
 bool8 GunkCanUseFieldMove(struct Pokemon *mon, u16 move);
 bool8 GunkCanUseFieldMoveUntaught(struct Pokemon *mon, u16 move);
 
+// DexNav (src/gunk_dexnav.c)
+#define GUNK_DEXNAV_MAX_CHOICES 8
+void GunkDexNavPrepare(void);
+u8 GunkDexNavMenuEntries(const u8 **texts);
+void GunkDexNavStart(void);
+void GunkDexNavStartLast(void);
+bool8 GunkDexNavSearchAgain(void);
+void GunkDexNavUpdate(void);
+bool8 GunkDexNavTryEncounter(void);
+void GunkDexNavBattleEnded(u8 outcome);
+bool8 ScriptMenu_GunkDexNav(void);
+
 #endif // GUARD_GUNK_H

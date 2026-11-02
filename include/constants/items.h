@@ -65,7 +65,7 @@
 #define ITEM_GREEN_SHARD 51
 #define ITEM_ENDLESS_REPEL 52 // Gunk (unused ITEM_034 in vanilla)
 #define ITEM_EXP_ALL 53       // Gunk (unused ITEM_035 in vanilla)
-#define ITEM_036 54
+#define ITEM_DEXNAV 54          // Gunk (unused ITEM_036 in vanilla)
 #define ITEM_037 55
 #define ITEM_038 56
 #define ITEM_039 57

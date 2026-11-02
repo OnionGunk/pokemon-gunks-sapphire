@@ -55,8 +55,9 @@ EWRAM_DATA static u8 sMenuText[GUNK_DEXNAV_MAX_CHOICES][16] = {0};
 
 extern const u8 EventScript_GunkDexNavAgain[];
 
-static const u8 sText_Unseen[] = _("?????");
-static const u8 sText_NotCaught[] = _(" NEW");
+static const u8 sText_Unseen[] = _("????? "); // trailing spaces: the menu width measure clips the last letter
+static const u8 sText_NotCaught[] = _(" NEW ");
+static const u8 sText_Space[] = _(" ");
 static const u8 sText_SearchLv[] = _("Search Lv. ");
 static const u8 sText_Chain[] = _("  Chain ");
 
@@ -103,8 +104,7 @@ void GunkDexNavPrepare(void)
             if (GetSetPokedexFlag(dexNum, FLAG_GET_SEEN))
             {
                 u8 *end = StringCopy(sMenuText[count], gSpeciesNames[species]);
-                if (!GetSetPokedexFlag(dexNum, FLAG_GET_CAUGHT))
-                    StringCopy(end, sText_NotCaught);
+                StringCopy(end, GetSetPokedexFlag(dexNum, FLAG_GET_CAUGHT) ? sText_Space : sText_NotCaught);
             }
             else
             {

@@ -860,7 +860,7 @@ struct SaveBlock2 /* 0x02024EA4 */
     /*0x98*/ struct Time localTimeOffset;
     /*0xA0*/ struct Time lastBerryTreeUpdate;
     /*0xA8*/ struct BattleTowerData battleTower;
-             u8 gunkDexNavLevels[NATIONAL_DEX_COUNT + 1]; // Gunk: DexNav search level by National Dex number
+             u8 gunkDexNavLevels[386 + 1]; // Gunk: DexNav search level by National Dex number (NATIONAL_DEX_COUNT + 1)
 };
 
 struct MapPosition

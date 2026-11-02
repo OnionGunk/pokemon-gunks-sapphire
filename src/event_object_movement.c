@@ -4323,6 +4323,8 @@ bool8 MovementType_Invisible_Step2(struct ObjectEvent *objectEvent, struct Sprit
     return FALSE;
 }
 
+static u8 GetDirectionToFace(s16 x1, s16 y1, s16 x2, s16 y2);
+
 // Gunk: following Pokémon. Step 0 waits hidden on the player's tile; step 1 walks to the tile the player just
 // left (appearing there if hidden); step 2 runs the walk. Adapted from pokeemerald-expansion's
 // MovementType_FollowPlayer.
@@ -4390,7 +4392,7 @@ static bool8 MovementType_GunkFollow_Step1(struct ObjectEvent *objectEvent, stru
         return FALSE;
     }
     direction = GetDirectionToFace(x, y, targetX, targetY);
-    if (PlayerGetCopyableMovement() == COPY_MOVE_JUMP2)
+    if (PlayerGetCopyableMovement() == 8) // CopyablePlayerMovement_Jump: a ledge
         action = GetJump2MovementAction(direction);
     else if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_DASH))
         action = GetWalkFastMovementAction(direction);

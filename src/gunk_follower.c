@@ -256,6 +256,6 @@ void GunkFollowerStripFromSave(struct ObjectEvent *objectEvents)
 void GunkFollowerCry(void)
 {
     if (sFollowerSpecies != SPECIES_NONE)
-        PlayCry1(sFollowerSpecies, 0);
+        PlayCry_Normal(sFollowerSpecies, 0);
     StringCopy(gStringVar1, gSpeciesNames[sFollowerSpecies]);
 }

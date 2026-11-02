@@ -149,6 +149,8 @@ void MovementType_WalkInPlace(struct Sprite *);
 void MovementType_JogInPlace(struct Sprite *);
 void MovementType_RunInPlace(struct Sprite *);
 void MovementType_Invisible(struct Sprite *);
+void MovementType_GunkFollow(struct Sprite *);
+void GunkRemoveObjectEvent(struct ObjectEvent *objectEvent);
 
 u8 MovementType_WanderAround_Step0(struct ObjectEvent *, struct Sprite *);
 u8 MovementType_WanderAround_Step1(struct ObjectEvent *, struct Sprite *);

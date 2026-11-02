@@ -315,6 +315,7 @@ include tilesets.mk
 include fonts.mk
 include misc.mk
 include spritesheet_rules.mk
+include gunk_followers.mk
 include override.mk
 include map_data_rules.mk
 include json_data_rules.mk

@@ -356,6 +356,7 @@ gSpecials::
 	def_special ScriptMenu_GunkDexNav
 	def_special GunkDexNavStart
 	def_special GunkDexNavStartLast
+	def_special GunkFollowerCry
 .ifdef GERMAN
 	def_special nullsub_814B200
 .endif

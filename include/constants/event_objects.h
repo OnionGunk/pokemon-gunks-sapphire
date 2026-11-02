@@ -222,7 +222,8 @@
 #define OBJ_EVENT_GFX_LINK_BRENDAN 216
 #define OBJ_EVENT_GFX_LINK_MAY 217
 
-#define NUM_OBJ_EVENT_GFX      218
+#define OBJ_EVENT_GFX_GUNK_FOLLOWER 218 // Gunk: following Pokémon (graphics info in RAM)
+#define NUM_OBJ_EVENT_GFX      219
 
 // These are dynamic object gfx ids.
 // They correspond with the values of the VAR_OBJ_GFX_ID_X vars.
@@ -264,6 +265,7 @@
 // can be spawned for the camera to track instead of the player. Additionally, the value 0 is reserved as an "empty" indicator.
 #define LOCALID_NONE                         0
 #define LOCALID_CAMERA                     127
+#define GUNK_FOLLOWER_LOCAL_ID             254 // Gunk: following Pokémon
 #define LOCALID_PLAYER                     255
 
 #endif  // GUARD_CONSTANTS_EVENT_OBJECTS_H

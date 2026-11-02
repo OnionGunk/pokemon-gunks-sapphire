@@ -78,6 +78,7 @@
 #define MOVEMENT_TYPE_RUN_IN_PLACE_LEFT                0x4A
 #define MOVEMENT_TYPE_RUN_IN_PLACE_RIGHT               0x4B
 #define MOVEMENT_TYPE_INVISIBLE                        0x4C
+#define MOVEMENT_TYPE_GUNK_FOLLOW                      0x4D // Gunk: following Pokémon
 
 #define MOVEMENT_ACTION_FACE_DOWN                   0x0
 #define MOVEMENT_ACTION_FACE_UP                     0x1

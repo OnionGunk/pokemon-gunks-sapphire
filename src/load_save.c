@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "gba/flash_internal.h"
 #include "load_save.h"
 #include "main.h"
@@ -87,6 +88,7 @@ static void SaveObjectEvents(void)
 
     for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
         gSaveBlock1.objectEvents[i] = gObjectEvents[i];
+    GunkFollowerStripFromSave(gSaveBlock1.objectEvents);
 }
 
 static void LoadObjectEvents(void)

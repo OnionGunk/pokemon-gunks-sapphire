@@ -1226,6 +1226,7 @@ static void CB1_Overworld(void)
 static void OverworldBasic(void)
 {
     GunkDexNavUpdate();
+    GunkFollowerUpdate();
     ScriptContext_RunScript();
     RunTasks();
     AnimateSprites();
@@ -1856,6 +1857,7 @@ void mli4_mapscripts_and_other(void)
     SetPlayerAvatarTransitionFlags(initialPlayerAvatarState->transitionFlags);
     ResetInitialPlayerAvatarState();
     TrySpawnObjectEvents(0, 0);
+    GunkFollowerOnMapLoad();
     ResetBerryTreeSparkleFlags();
     TryRunOnWarpIntoMapScript();
 }

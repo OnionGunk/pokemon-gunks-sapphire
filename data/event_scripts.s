@@ -1608,6 +1608,18 @@ Text_RepelWoreOffUseAnother:
 	.string "REPEL's effect wore off...\n"
 	.string "Use another {STR_VAR_2}?$"
 
+@ Gunk: talking to the following Pokémon
+EventScript_GunkFollower::
+	lock
+	special GunkFollowerCry
+	msgbox Text_GunkFollowerHappy, MSGBOX_DEFAULT
+	waitmoncry
+	release
+	end
+
+Text_GunkFollowerHappy:
+	.string "{STR_VAR_1} is happy to be with you!$"
+
 @ Gunk: DexNav
 EventScript_GunkDexNav::
 	lockall

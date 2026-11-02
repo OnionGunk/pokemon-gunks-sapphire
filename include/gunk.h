@@ -26,4 +26,15 @@ bool8 GunkDexNavTryEncounter(void);
 void GunkDexNavBattleEnded(u8 outcome);
 bool8 ScriptMenu_GunkDexNav(void);
 
+// Following Pokémon (src/gunk_follower.c)
+#define GUNK_FOLLOWER_PAL_TAG 0x1120
+extern u16 gGunkFollowerPalette[16];
+const struct ObjectEventGraphicsInfo *GunkFollowerGraphicsInfo(void);
+bool8 GunkIsFollower(struct ObjectEvent *objectEvent);
+bool8 GunkFollowerShouldShow(void);
+void GunkFollowerUpdate(void);
+void GunkFollowerOnMapLoad(void);
+void GunkFollowerStripFromSave(struct ObjectEvent *objectEvents);
+void GunkFollowerCry(void);
+
 #endif // GUARD_GUNK_H

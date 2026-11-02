@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "berry.h"
 #include "event_data.h"
 #include "event_object_movement.h"
@@ -187,6 +188,7 @@ static void (*const sMovementTypeCallbacks[])(struct Sprite *) =
     [MOVEMENT_TYPE_RUN_IN_PLACE_LEFT] = MovementType_RunInPlace,
     [MOVEMENT_TYPE_RUN_IN_PLACE_RIGHT] = MovementType_RunInPlace,
     [MOVEMENT_TYPE_INVISIBLE] = MovementType_Invisible,
+    [MOVEMENT_TYPE_GUNK_FOLLOW] = MovementType_GunkFollow,
 };
 
 const u8 gRangedMovementTypes[] = {
@@ -267,6 +269,7 @@ const u8 gRangedMovementTypes[] = {
     [MOVEMENT_TYPE_RUN_IN_PLACE_LEFT] = 0,
     [MOVEMENT_TYPE_RUN_IN_PLACE_RIGHT] = 0,
     [MOVEMENT_TYPE_INVISIBLE] = 0,
+    [MOVEMENT_TYPE_GUNK_FOLLOW] = 0,
 };
 
 const u8 gInitialMovementTypeFacingDirections[] = {
@@ -347,6 +350,7 @@ const u8 gInitialMovementTypeFacingDirections[] = {
     [MOVEMENT_TYPE_RUN_IN_PLACE_LEFT] = DIR_WEST,
     [MOVEMENT_TYPE_RUN_IN_PLACE_RIGHT] = DIR_EAST,
     [MOVEMENT_TYPE_INVISIBLE] = DIR_SOUTH,
+    [MOVEMENT_TYPE_GUNK_FOLLOW] = DIR_SOUTH,
 };
 
 #define OBJ_EVENT_PAL_TAG_0  0x1103
@@ -400,6 +404,7 @@ const struct SpritePalette sObjectEventSpritePalettes[] = {
     {gObjectEventPalette9,  OBJ_EVENT_PAL_TAG_9},
     {gObjectEventPalette10, OBJ_EVENT_PAL_TAG_10},
     {gObjectEventPalette11, OBJ_EVENT_PAL_TAG_11},
+    {gGunkFollowerPalette,  GUNK_FOLLOWER_PAL_TAG}, // Gunk: filled for the current follower
     {gObjectEventPalette12, OBJ_EVENT_PAL_TAG_12},
     {gObjectEventPalette13, OBJ_EVENT_PAL_TAG_13},
     {gObjectEventPalette14, OBJ_EVENT_PAL_TAG_14},
@@ -1261,6 +1266,12 @@ void RemoveObjectEventByLocalIdAndMap(u8 localId, u8 mapNum, u8 mapGroup)
     }
 }
 
+// Gunk: remove an object that has no map template (the follower), without setting a flag
+void GunkRemoveObjectEvent(struct ObjectEvent *objectEvent)
+{
+    RemoveObjectEvent(objectEvent);
+}
+
 static void RemoveObjectEventInternal(struct ObjectEvent *objectEvent)
 {
     struct SpriteFrameImage image;
@@ -1760,6 +1771,8 @@ static void get_berry_tree_graphics(struct ObjectEvent *objectEvent, struct Spri
 
 const struct ObjectEventGraphicsInfo *GetObjectEventGraphicsInfo(u8 graphicsId)
 {
+    if (graphicsId == OBJ_EVENT_GFX_GUNK_FOLLOWER)
+        return GunkFollowerGraphicsInfo();
     if (graphicsId >= OBJ_EVENT_GFX_VARS)
     {
         graphicsId = VarGetObjectEventGraphicsId(graphicsId + 16);
@@ -4310,6 +4323,103 @@ bool8 MovementType_Invisible_Step2(struct ObjectEvent *objectEvent, struct Sprit
     return FALSE;
 }
 
+// Gunk: following Pokémon. Step 0 waits hidden on the player's tile; step 1 walks to the tile the player just
+// left (appearing there if hidden); step 2 runs the walk. Adapted from pokeemerald-expansion's
+// MovementType_FollowPlayer.
+static bool8 MovementType_GunkFollow_Step0(struct ObjectEvent *objectEvent, struct Sprite *sprite)
+{
+    struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+
+    ClearObjectEventMovement(objectEvent, sprite);
+    if (!GunkFollowerShouldShow())
+    {
+        objectEvent->invisible = TRUE;
+        SetObjectEventCoords(objectEvent, player->currentCoords.x, player->currentCoords.y);
+        objectEvent->currentElevation = player->currentElevation;
+        objectEvent->previousElevation = player->previousElevation;
+        return FALSE;
+    }
+    sprite->data[1] = 1;
+    return TRUE;
+}
+
+static bool8 MovementType_GunkFollow_Step1(struct ObjectEvent *objectEvent, struct Sprite *sprite)
+{
+    struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    s16 targetX = player->previousCoords.x;
+    s16 targetY = player->previousCoords.y;
+    s16 x = objectEvent->currentCoords.x;
+    s16 y = objectEvent->currentCoords.y;
+    s16 dx, dy;
+    u8 direction;
+    u8 action;
+
+    if (!GunkFollowerShouldShow())
+    {
+        objectEvent->invisible = TRUE;
+        sprite->data[1] = 0;
+        return FALSE;
+    }
+    if (player->currentCoords.x == targetX && player->currentCoords.y == targetY)
+        return FALSE; // the player turned or bumped
+    if (objectEvent->invisible)
+    {
+        // out of the ball, on the tile the player just left
+        SetObjectEventCoords(objectEvent, targetX, targetY);
+        sub_805C058(objectEvent, targetX, targetY);
+        objectEvent->currentElevation = player->previousElevation;
+        objectEvent->previousElevation = player->previousElevation;
+        objectEvent->facingDirection = player->movementDirection;
+        objectEvent->invisible = FALSE;
+        ObjectEventSetSingleMovement(objectEvent, sprite, GetFaceDirectionMovementAction(player->movementDirection));
+        objectEvent->singleMovementActive = TRUE;
+        sprite->data[1] = 2;
+        return TRUE;
+    }
+    if (x == targetX && y == targetY)
+        return FALSE;
+    dx = targetX - x;
+    dy = targetY - y;
+    if ((dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy) != 1)
+    {
+        // fell behind (warp, jump, script): back into the ball until the next step
+        objectEvent->invisible = TRUE;
+        SetObjectEventCoords(objectEvent, player->currentCoords.x, player->currentCoords.y);
+        sub_805C058(objectEvent, player->currentCoords.x, player->currentCoords.y);
+        sprite->data[1] = 0;
+        return FALSE;
+    }
+    direction = GetDirectionToFace(x, y, targetX, targetY);
+    if (PlayerGetCopyableMovement() == COPY_MOVE_JUMP2)
+        action = GetJump2MovementAction(direction);
+    else if (TestPlayerAvatarFlags(PLAYER_AVATAR_FLAG_DASH))
+        action = GetWalkFastMovementAction(direction);
+    else
+        action = GetWalkNormalMovementAction(direction);
+    ObjectEventSetSingleMovement(objectEvent, sprite, action);
+    objectEvent->singleMovementActive = TRUE;
+    sprite->data[1] = 2;
+    return TRUE;
+}
+
+static bool8 MovementType_GunkFollow_Step2(struct ObjectEvent *objectEvent, struct Sprite *sprite)
+{
+    if (ObjectEventExecSingleMovementAction(objectEvent, sprite))
+    {
+        objectEvent->singleMovementActive = FALSE;
+        sprite->data[1] = 1;
+    }
+    return FALSE;
+}
+
+static u8 (*const sMovementTypeFuncs_GunkFollow[])(struct ObjectEvent *, struct Sprite *) = {
+    MovementType_GunkFollow_Step0,
+    MovementType_GunkFollow_Step1,
+    MovementType_GunkFollow_Step2,
+};
+
+movement_type_def(MovementType_GunkFollow, sMovementTypeFuncs_GunkFollow);
+
 static void ClearObjectEventMovement(struct ObjectEvent *objectEvent, struct Sprite *sprite)
 {
     objectEvent->singleMovementActive = 0;
@@ -4532,7 +4642,7 @@ static bool8 DoesObjectCollideWithObjectAt(struct ObjectEvent *objectEvent, s16 
     {
         struct ObjectEvent *objectEvent2 = &gObjectEvents[i];
 
-        if (objectEvent2->active && objectEvent2 != objectEvent)
+        if (objectEvent2->active && objectEvent2 != objectEvent && !GunkIsFollower(objectEvent2)) // Gunk: never blocks
         {
             if (((objectEvent2->currentCoords.x == x && objectEvent2->currentCoords.y == y) || (objectEvent2->previousCoords.x == x && objectEvent2->previousCoords.y == y))
              && AreZCoordsCompatible(objectEvent->currentElevation, objectEvent2->currentElevation))

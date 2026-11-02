@@ -112,6 +112,7 @@ static bool8 TryStartCoordEventScript(struct MapPosition *);
 static bool8 TryStartWarpEventScript(struct MapPosition *, u16);
 static bool8 TryStartCrackedFloorHoleScript(u16);
 static bool8 TryStartStepCountScript(void);
+extern const u8 EventScript_GunkFollower[];
 
 void ClearPlayerFieldInput(struct FieldInput *input)
 {
@@ -405,6 +406,8 @@ static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8
             return NULL;
     }
 
+    if (GunkIsFollower(&gObjectEvents[objectEventId]))
+        return EventScript_GunkFollower; // Gunk: no map template behind the follower
     gSelectedObjectEvent = objectEventId;
     gSpecialVar_LastTalked = gObjectEvents[objectEventId].localId;
     gSpecialVar_Facing = direction;

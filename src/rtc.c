@@ -131,10 +131,47 @@ u16 RtcGetErrorStatus()
     return sErrorStatus;
 }
 
+#define TO_BCD(n) ((((n) / 10) << 4) | ((n) % 10))
+
+// Gunk: a dry battery makes the RTC report a power failure, and vanilla then freezes the clock at 2000-01-01
+// 00:00, so berries stop growing and the tides stop turning. Run the clock from the play time instead: it is
+// saved, so the clock carries on from where the last session stopped.
+static void RtcFromPlayTime(struct SiiRtcInfo *rtc)
+{
+    u32 days = gSaveBlock2.playTimeHours / 24;
+    u8 year = 0;
+    u8 month = 0;
+    u32 length;
+
+    *rtc = sRtcDummy;
+    for (;;)
+    {
+        length = IsLeapYear(year) ? 366 : 365;
+        if (days < length)
+            break;
+        days -= length;
+        year++;
+    }
+    for (;;)
+    {
+        length = sNumDaysInMonths[month] + (month == MONTH_FEB - 1 && IsLeapYear(year));
+        if (days < length)
+            break;
+        days -= length;
+        month++;
+    }
+    rtc->year = TO_BCD(year);
+    rtc->month = TO_BCD(month + 1);
+    rtc->day = TO_BCD(days + 1);
+    rtc->hour = TO_BCD(gSaveBlock2.playTimeHours % 24);
+    rtc->minute = TO_BCD(gSaveBlock2.playTimeMinutes);
+    rtc->second = TO_BCD(gSaveBlock2.playTimeSeconds);
+}
+
 void RtcGetInfo(struct SiiRtcInfo *rtc)
 {
     if (sErrorStatus & RTC_ERR_FLAG_MASK)
-        *rtc = sRtcDummy;
+        RtcFromPlayTime(rtc);
     else
         RtcGetRawInfo(rtc);
 }

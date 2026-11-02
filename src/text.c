@@ -85,6 +85,7 @@ static u8 sub_8002FA0(struct Window *, const u8 *);
 static u8 PrintNextChar(struct Window *);
 static u8 HandleExtCtrlCode(struct Window *);
 static u8 UpdateWindowText(struct Window *);
+static u8 UpdateWindowTextOnce(struct Window *);
 static u8 DrawGlyph_TextMode0(struct Window *, u32);
 static void DrawGlyph_TextMode2(struct Window *, u32);
 static void LoadFixedWidthGlyph(struct Window *, u32, u8 *);
@@ -434,7 +435,7 @@ static const struct Font sFonts[] =
     { 3, (u8 *)sBrailleGlyphs,  8,   0 },
 };
 
-static const u8 sTextSpeedDelays[] = { 6, 3, 1 }; // slow, mid, fast
+static const u8 sTextSpeedDelays[] = { 6, 3, 1, 1 }; // slow, mid, fast, instant
 
 static const u8 sExtCtrlCodeLengths[] =
 {
@@ -2401,8 +2402,26 @@ u8 Text_UpdateWindow(struct Window *win)
     return UpdateWindowText(win);
 }
 
-// Returns TRUE when all of the text has been printed.
+// Gunk: with INSTANT text, print every character up to the next wait (button, pause, sound, scroll) this frame
 static u8 UpdateWindowText(struct Window *win)
+{
+    u8 ret = UpdateWindowTextOnce(win);
+    u16 guard = 0;
+
+    if (gSaveBlock2.optionsTextSpeed != OPTIONS_TEXT_SPEED_INSTANT || !PlayerCanInterruptDelay(win))
+        return ret;
+    while (!ret && guard++ < 1024
+     && (win->state == WIN_STATE_CHAR_DELAY || win->state == WIN_STATE_NORMAL
+      || win->state == WIN_STATE_PLACEHOLDER || win->state == WIN_STATE_BEGIN))
+    {
+        win->delayCounter = 0;
+        ret = UpdateWindowTextOnce(win);
+    }
+    return ret;
+}
+
+// Returns TRUE when all of the text has been printed.
+static u8 UpdateWindowTextOnce(struct Window *win)
 {
     switch (win->state)
     {

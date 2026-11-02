@@ -24,6 +24,7 @@ extern const u8 gSystemText_ButtonMode[];
 extern const u8 gSystemText_Slow[];
 extern const u8 gSystemText_Mid[];
 extern const u8 gSystemText_Fast[];
+extern const u8 gGunkText_Instant[];
 extern const u8 gSystemText_On[];
 extern const u8 gSystemText_Off[];
 extern const u8 gSystemText_Shift[];

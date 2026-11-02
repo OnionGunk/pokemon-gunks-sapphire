@@ -16,6 +16,9 @@
 #include "util.h"
 #include "constants/item_effects.h"
 
+// Gunk: vitamins raise a stat's EVs up to 252 (vanilla stops at 100)
+#define EV_ITEM_LIMIT 252
+
 extern s32 gBattleMoveDamage;
 extern u8 gAbsentBattlerFlags;
 extern u8 gBattlerInMenuId;
@@ -251,10 +254,10 @@ bool8 PokemonUseItemEffects(struct Pokemon *pkmn, u16 item, u8 partyIndex, u8 mo
                         if (evCount >= 510)
                             return TRUE;
                         data = GetMonData(pkmn, sGetMonDataEVConstants[data2], NULL);
-                        if (data < 100)
+                        if (data < EV_ITEM_LIMIT)
                         {
-                            if (data + itemEffect[paramIdx] > 100)
-                                evChange = 100 - (data + itemEffect[paramIdx]) + itemEffect[paramIdx];
+                            if (data + itemEffect[paramIdx] > EV_ITEM_LIMIT)
+                                evChange = EV_ITEM_LIMIT - (data + itemEffect[paramIdx]) + itemEffect[paramIdx];
                             else
                                 evChange = itemEffect[paramIdx];
                             if (evCount + evChange > 510)
@@ -435,10 +438,10 @@ bool8 PokemonUseItemEffects(struct Pokemon *pkmn, u16 item, u8 partyIndex, u8 mo
                         if (evCount >= 510)
                             return TRUE;
                         data = GetMonData(pkmn, sGetMonDataEVConstants[data2 + 2], NULL);
-                        if (data < 100)
+                        if (data < EV_ITEM_LIMIT)
                         {
-                            if (data + itemEffect[paramIdx] > 100)
-                                evChange = 100 - (data + itemEffect[paramIdx]) + itemEffect[paramIdx];
+                            if (data + itemEffect[paramIdx] > EV_ITEM_LIMIT)
+                                evChange = EV_ITEM_LIMIT - (data + itemEffect[paramIdx]) + itemEffect[paramIdx];
                             else
                                 evChange = itemEffect[paramIdx];
                             if (evCount + evChange > 510)

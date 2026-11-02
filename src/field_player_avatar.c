@@ -565,7 +565,8 @@ static void sub_8058D0C(u8 direction, u16 heldKeys)
             PlayerGoSpeed2(direction);
             return;
         }
-        if (!(gPlayerAvatar.flags & PLAYER_AVATAR_FLAG_UNDERWATER) && (heldKeys & B_BUTTON) && FlagGet(FLAG_SYS_B_DASH)
+        // Gunk: with the Running Shoes, run by default; hold B to walk
+        if (!(gPlayerAvatar.flags & PLAYER_AVATAR_FLAG_UNDERWATER) && !(heldKeys & B_BUTTON) && FlagGet(FLAG_SYS_B_DASH)
          && IsRunningDisallowed(gObjectEvents[gPlayerAvatar.objectEventId].currentMetatileBehavior) == 0)
         {
             PlayerRun(direction);

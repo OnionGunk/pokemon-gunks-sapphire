@@ -1926,7 +1926,7 @@ s32 MoveBattleBar(u8 battler, u8 unused1, u8 whichBar, u8 unused2)
         if (expFraction == 0)
             expFraction = 1;
         r8 = eBattleBars[battler].receivedValue;
-        expFraction = ABS(r8 / expFraction);
+        expFraction = ABS(r8 / expFraction) * 2; // Gunk: the EXP bar fills twice as fast
         r6 = sub_8045F58(eBattleBars[battler].maxValue, eBattleBars[battler].oldValue, r8, &eBattleBars[battler].currValue, 8, expFraction);
     }
     if (whichBar == 1 || (whichBar == 0 && (!gBattleSpriteInfo[battler].hpNumbersNoBars)))

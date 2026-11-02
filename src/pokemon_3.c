@@ -369,7 +369,8 @@ u16 GetEvolutionTargetSpecies(struct Pokemon *mon, u8 type, u16 evolutionItem)
     case 3:
         for (i = 0; i < 5; i++)
         {
-            if (gEvolutionTable[species][i].method == EVO_ITEM
+            // Gunk: trade items (King's Rock, Metal Coat...) also work like evolution stones
+            if ((gEvolutionTable[species][i].method == EVO_ITEM || gEvolutionTable[species][i].method == EVO_TRADE_ITEM)
              && gEvolutionTable[species][i].param == evolutionItem)
             {
                 targetSpecies = gEvolutionTable[species][i].targetSpecies;

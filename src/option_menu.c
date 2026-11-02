@@ -302,7 +302,7 @@ static u8 TextSpeed_ProcessInput(u8 selection)
 {
     if (JOY_NEW(DPAD_RIGHT))
     {
-        if (selection < 2)
+        if (selection < OPTIONS_TEXT_SPEED_INSTANT)
             selection++;
         else
             selection = 0;
@@ -312,7 +312,7 @@ static u8 TextSpeed_ProcessInput(u8 selection)
         if (selection > 0)
             selection--;
         else
-            selection = 2;
+            selection = OPTIONS_TEXT_SPEED_INSTANT;
     }
     return selection;
 }
@@ -328,18 +328,30 @@ static u8 TextSpeed_ProcessInput(u8 selection)
 #define TEXTSPEED_FAST_LEFT (202)
 #endif
 
+// Gunk: four speeds in three places. SLOW and MID show SLOW MID FAST; FAST and INSTANT show MID FAST INSTANT.
 static void TextSpeed_DrawChoices(u8 selection)
 {
-    u8 styles[3];
+    u8 styles[4];
 
     styles[0] = 0xF;
     styles[1] = 0xF;
     styles[2] = 0xF;
+    styles[3] = 0xF;
     styles[selection] = 0x8;
 
-    DrawOptionMenuChoice(gSystemText_Slow, TEXTSPEED_SLOW_LEFT, 40, styles[0]);
-    DrawOptionMenuChoice(gSystemText_Mid,  TEXTSPEED_MIX_LEFT,  40, styles[1]);
-    DrawOptionMenuChoice(gSystemText_Fast, TEXTSPEED_FAST_LEFT, 40, styles[2]);
+    Menu_BlankWindowRect(15, 5, 26, 6);
+    if (selection <= OPTIONS_TEXT_SPEED_MID)
+    {
+        DrawOptionMenuChoice(gSystemText_Slow, TEXTSPEED_SLOW_LEFT, 40, styles[0]);
+        DrawOptionMenuChoice(gSystemText_Mid,  TEXTSPEED_MIX_LEFT,  40, styles[1]);
+        DrawOptionMenuChoice(gSystemText_Fast, TEXTSPEED_FAST_LEFT, 40, styles[2]);
+    }
+    else
+    {
+        DrawOptionMenuChoice(gSystemText_Mid,     120, 40, styles[1]);
+        DrawOptionMenuChoice(gSystemText_Fast,    146, 40, styles[2]);
+        DrawOptionMenuChoice(gGunkText_Instant,   176, 40, styles[3]);
+    }
 }
 
 static u8 BattleScene_ProcessInput(u8 selection)

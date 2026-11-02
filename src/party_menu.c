@@ -3267,8 +3267,7 @@ void Task_TeamMonTMMove2(u8 taskId)
     StringExpandPlaceholders(gStringVar4, gOtherText_LearnedMove);
     DisplayPartyMenuMessage(gStringVar4, 1);
     AdjustFriendship(gPartyMenu.pokemon, FRIENDSHIP_EVENT_LEARN_TMHM);
-    if (ePartyMenu2.pmUnk282 == 0 && gPartyMenu.secondarySelectedIndex < ITEM_HM01_CUT)
-        RemoveBagItem(gPartyMenu.secondarySelectedIndex, 1);
+    // Gunk: TMs are reusable, like HMs
     gTasks[taskId].func = Task_TeamMonTMMove3;
 }
 

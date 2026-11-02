@@ -768,7 +768,8 @@ static bool8 _ShouldEggHatch(struct DayCare *daycare)
                     return TRUE;
                 }
 
-                friendship--;
+                // Gunk: eggs hatch twice as fast (two egg cycles per 256 steps)
+                friendship = friendship >= 2 ? friendship - 2 : 0;
                 SetMonData(&gPlayerParty[i], MON_DATA_FRIENDSHIP, &friendship);
             }
         }

@@ -4,7 +4,8 @@
 // but not caught yet marked NEW). Picking one hides it in a rustling patch of tall grass 2-4 tiles away; stepping into the patch
 // starts the battle. R searches again for the last pick. Each DexNav battle raises that species' search level
 // (saved), and battling the same species again in a row builds a chain. Both give extra IV rolls and shiny rolls;
-// every roll is a whole normal wild Pokémon (CreateMonWithNature), so whatever is kept is a legal wild Pokémon.
+// every roll makes a whole normal wild Pokémon's RNG calls (CreateMonWithNature), so whatever is kept is a legal wild
+// Pokémon.
 // Leaving the map, walking 8 tiles away or running from the battle ends the search; running also ends the chain.
 #include "global.h"
 #include "gunk.h"
@@ -315,10 +316,32 @@ void GunkDexNavUpdate(void)
     FieldEffectStart(FLDEFF_TALL_GRASS);
 }
 
-static u16 IvTotal(struct Pokemon *mon)
+bool8 IsShinyOtIdPersonality(u32 otId, u32 personality);
+
+static u16 IvTotal(u16 ivs1, u16 ivs2)
 {
-    return GetMonData(mon, MON_DATA_HP_IV) + GetMonData(mon, MON_DATA_ATK_IV) + GetMonData(mon, MON_DATA_DEF_IV)
-         + GetMonData(mon, MON_DATA_SPEED_IV) + GetMonData(mon, MON_DATA_SPATK_IV) + GetMonData(mon, MON_DATA_SPDEF_IV);
+    return (ivs1 & 0x1F) + ((ivs1 >> 5) & 0x1F) + ((ivs1 >> 10) & 0x1F)
+         + (ivs2 & 0x1F) + ((ivs2 >> 5) & 0x1F) + ((ivs2 >> 10) & 0x1F);
+}
+
+// The IVs CreateMon draws from two IV words, then the stats for them (full HP: it was full at all IVs 0)
+static void SetDexNavIvs(struct Pokemon *mon, u16 ivs1, u16 ivs2)
+{
+    u32 iv;
+
+    iv = ivs1 & 0x1F;
+    SetMonData(mon, MON_DATA_HP_IV, &iv);
+    iv = (ivs1 >> 5) & 0x1F;
+    SetMonData(mon, MON_DATA_ATK_IV, &iv);
+    iv = (ivs1 >> 10) & 0x1F;
+    SetMonData(mon, MON_DATA_DEF_IV, &iv);
+    iv = ivs2 & 0x1F;
+    SetMonData(mon, MON_DATA_SPEED_IV, &iv);
+    iv = (ivs2 >> 5) & 0x1F;
+    SetMonData(mon, MON_DATA_SPATK_IV, &iv);
+    iv = (ivs2 >> 10) & 0x1F;
+    SetMonData(mon, MON_DATA_SPDEF_IV, &iv);
+    CalculateMonStats(mon);
 }
 
 // Each step: stepping into the patch starts the battle
@@ -326,8 +349,9 @@ bool8 GunkDexNavTryEncounter(void)
 {
     struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
     u8 *searchLevel;
-    u8 ivRolls, shinyRolls, rolls, i;
-    u16 best = 0;
+    u8 ivRolls, shinyRolls, rolls, i, nature;
+    u16 best = 0, ivs1, ivs2;
+    u32 otId, personality = 0;
 
     if (!sDexNav.active || sDexNav.inBattle
      || gSaveBlock1.location.mapGroup != sDexNav.mapGroup || gSaveBlock1.location.mapNum != sDexNav.mapNum
@@ -343,23 +367,38 @@ bool8 GunkDexNavTryEncounter(void)
         shinyRolls = 10;
     rolls = ivRolls > shinyRolls ? ivRolls : shinyRolls;
 
-    ZeroEnemyPartyMons();
+    // Building a whole Pokémon per roll took up to 45 frames at 20 rolls. Instead each roll makes exactly the RNG
+    // calls CreateMonWithNature(..., 32, Random() % 25) makes (nature, personality until it has that nature, two IV
+    // words) and only the winner is built, from its personality and IV words (CreateMon with fixed IVs draws nothing).
+    otId = gSaveBlock2.playerTrainerId[0] | (gSaveBlock2.playerTrainerId[1] << 8)
+         | (gSaveBlock2.playerTrainerId[2] << 16) | (gSaveBlock2.playerTrainerId[3] << 24);
     for (i = 0; i < rolls; i++)
     {
-        // gEnemyParty[1] is free in a wild battle: roll there, keep the best in slot 0
-        CreateMonWithNature(&gEnemyParty[1], sDexNav.species, sDexNav.level, 32, Random() % 25);
-        if (i < shinyRolls && IsShiny(&gEnemyParty[1]))
+        u32 rollPersonality;
+        u16 rollIvs1, rollIvs2;
+
+        nature = Random() % 25;
+        do
         {
-            gEnemyParty[0] = gEnemyParty[1];
+            rollPersonality = Random32();
+        }
+        while (nature != GetNatureFromPersonality(rollPersonality));
+        rollIvs1 = Random();
+        rollIvs2 = Random();
+        if (i < shinyRolls && IsShinyOtIdPersonality(otId, rollPersonality))
+        {
+            personality = rollPersonality, ivs1 = rollIvs1, ivs2 = rollIvs2;
             break;
         }
-        if (i < ivRolls && (i == 0 || IvTotal(&gEnemyParty[1]) > best))
+        if (i < ivRolls && (i == 0 || IvTotal(rollIvs1, rollIvs2) > best))
         {
-            gEnemyParty[0] = gEnemyParty[1];
-            best = IvTotal(&gEnemyParty[0]);
+            personality = rollPersonality, ivs1 = rollIvs1, ivs2 = rollIvs2;
+            best = IvTotal(ivs1, ivs2);
         }
     }
-    ZeroMonData(&gEnemyParty[1]);
+    ZeroEnemyPartyMons();
+    CreateMon(&gEnemyParty[0], sDexNav.species, sDexNav.level, 0, TRUE, personality, 0, 0);
+    SetDexNavIvs(&gEnemyParty[0], ivs1, ivs2);
 
     if (*searchLevel < 255)
         (*searchLevel)++;

@@ -30,8 +30,11 @@
 #include "constants/species.h"
 
 #define LAND_SLOTS 12
-#define RUSTLE_FRAMES 40
+#define RUSTLE_FRAMES 30  // the patch shakes twice a second
+#define SEARCH_FRAMES 600 // a search lasts 10 seconds of field time (the player free to move)
 #define MAX_DISTANCE 8
+
+extern const u8 EventScript_GunkDexNavGotAway[];
 
 struct GunkDexNav
 {
@@ -47,6 +50,7 @@ struct GunkDexNav
     u8 active:1;
     u8 inBattle:1;
     u8 timer;
+    u16 age;            // field frames since the search began
 };
 
 EWRAM_DATA static struct GunkDexNav sDexNav = {0};
@@ -194,6 +198,7 @@ static bool8 StartSearch(u16 species)
         sDexNav.mapNum = gSaveBlock1.location.mapNum;
         sDexNav.level = PickLevel(species);
         sDexNav.timer = 0;
+        sDexNav.age = 0;
         sDexNav.active = TRUE;
         sDexNav.inBattle = FALSE;
         return TRUE;
@@ -281,6 +286,20 @@ void GunkDexNavUpdate(void)
         sDexNav.active = FALSE;
         return;
     }
+    // 10 seconds: the Pokémon got away and the chain ends (the message waits until the player stands still)
+    if (!ArePlayerFieldControlsLocked() && sDexNav.age < SEARCH_FRAMES)
+        sDexNav.age++;
+    if (sDexNav.age >= SEARCH_FRAMES)
+    {
+        if (ArePlayerFieldControlsLocked() || gPlayerAvatar.tileTransitionState != T_NOT_MOVING)
+            return;
+        sDexNav.active = FALSE;
+        sDexNav.chain = 0;
+        StringCopy(gStringVar1, gSpeciesNames[sDexNav.species]);
+        LockPlayerFieldControls();
+        ScriptContext_SetupScript(EventScript_GunkDexNavGotAway);
+        return;
+    }
     if (++sDexNav.timer < RUSTLE_FRAMES)
         return;
     sDexNav.timer = 0;
@@ -349,20 +368,18 @@ bool8 GunkDexNavTryEncounter(void)
     return TRUE;
 }
 
-// End of a wild battle: count the chain, or end it when the player ran or the Pokémon fled
+// End of a wild battle. A DexNav battle won or caught adds to the chain (running keeps it: same species).
+// Any other wild battle keeps the chain when it was the chained species and ends it otherwise.
 void GunkDexNavBattleEnded(u8 outcome)
 {
     if (!sDexNav.inBattle)
+    {
+        if (GetMonData(&gEnemyParty[0], MON_DATA_SPECIES) != sDexNav.chainSpecies)
+            sDexNav.chain = 0;
         return;
+    }
     sDexNav.inBattle = FALSE;
     sDexNav.active = FALSE;
-    if (outcome == B_OUTCOME_WON || outcome == B_OUTCOME_CAUGHT)
-    {
-        if (sDexNav.chain < 255)
-            sDexNav.chain++;
-    }
-    else
-    {
-        sDexNav.chain = 0;
-    }
+    if ((outcome == B_OUTCOME_WON || outcome == B_OUTCOME_CAUGHT) && sDexNav.chain < 255)
+        sDexNav.chain++;
 }

@@ -1649,6 +1649,13 @@ EventScript_GunkDexNavResult:
 	goto EventScript_GunkDexNavClose
 	end
 
+@ the search ran out of time (gunk_dexnav.c locked the field and buffered the name)
+EventScript_GunkDexNavGotAway::
+	msgbox Text_GunkDexNavGotAway, MSGBOX_DEFAULT
+	closemessage
+	releaseall
+	end
+
 EventScript_GunkDexNavNoneHere:
 	msgbox Text_GunkDexNavNoneHere, MSGBOX_DEFAULT
 	goto EventScript_GunkDexNavClose
@@ -1667,6 +1674,9 @@ Text_GunkDexNavWhich:
 Text_GunkDexNavFound:
 	.string "{STR_VAR_1} Lv. {STR_VAR_2} is in the grass!\n"
 	.string "{STR_VAR_3}$"
+
+Text_GunkDexNavGotAway:
+	.string "The {STR_VAR_1} got away...$"
 
 Text_GunkDexNavNoneHere:
 	.string "There are no POKéMON in the grass\n"

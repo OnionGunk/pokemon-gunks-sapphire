@@ -32,7 +32,7 @@ checks), `story.py` (scripted play from a new game through Mom's gifts).
 | # | Change | Verdict | What was checked on Sapphire | Status |
 |---|---|---|---|---|
 | 6 | INSTANT text; new games on FAST | port | A field message prints in 3 frames (65 at FAST); INSTANT is picked and saved in Options; new games start on FAST. | ✅ |
-| 7 | EXP bar twice as fast | port | Seen filling in Route 101 battles; speed not measured frame by frame. | ✅ |
+| 7 | EXP bar twice as fast | port | Now also at early levels (Gunk's Ruby 66372b6de: levels spanning < 64 EXP took the fixed-point path, which ignored the step; Ruby measured 0.80 frames/px vs vanilla 1.42). Battles on Route 101 checked after it; speed not measured here. | ✅ |
 | 8 | Auto-run with the Running Shoes, hold B to walk | port | Outdoors: 3 tiles in 32 frames without B, 2 holding B, 2 without the shoes. (Sapphire doesn't allow running indoors.) | ✅ |
 | 9 | Repel prompt | port | YES uses another Super Repel (200 steps, one fewer in the bag), NO leaves both, none left shows the original message. | ✅ |
 | 10 | Endless Repel key item | adapt | Switched from the bag and from L; the ON/OFF message now waits for a button (fix sent to Ruby). | ✅ |

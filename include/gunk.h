@@ -38,4 +38,14 @@ void GunkFollowerOnMapLoad(void);
 void GunkFollowerStripFromSave(struct ObjectEvent *objectEvents);
 void GunkFollowerCry(void);
 
+// Quick Ball and Quick Run (src/gunk_quickball.c, battle_controller_player.c)
+#define QUICK_BALL_NONE     0
+#define QUICK_BALL_CONSUMED 1
+#define QUICK_BALL_THROW    2
+void GunkQuickBall_Show(void);
+void GunkQuickBall_Hide(void);
+u8 GunkQuickBall_HandleInput(void);
+u16 GunkQuickBall_TakePendingThrow(void);
+void GunkQuickBall_RememberBall(u16 item);
+
 #endif // GUARD_GUNK_H

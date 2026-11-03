@@ -49,6 +49,7 @@ SECTIONS {
         src/gunk.o(.text);
         src/gunk_dexnav.o(.text);
         src/gunk_follower.o(.text);
+        src/gunk_quickball.o(.text);
         src/main_menu.o(.text);
         src/battle_controllers.o(.text);
         src/decompress.o(.text);
@@ -479,6 +480,7 @@ SECTIONS {
         src/gunk.o(.rodata);
         src/gunk_dexnav.o(.rodata);
         src/gunk_follower.o(.rodata);
+        src/gunk_quickball.o(.rodata);
         src/main_menu.o(.rodata);
 		src/battle_controllers.o(.rodata);
         data/mon_attrs.o(.rodata);

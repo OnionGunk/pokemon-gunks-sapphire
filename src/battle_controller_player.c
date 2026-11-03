@@ -23,6 +23,7 @@
 #include "constants/items.h"
 #include "constants/moves.h"
 #include "constants/songs.h"
+#include "gunk.h"
 
 struct MovePpInfo
 {
@@ -344,10 +345,33 @@ void HandleInputChooseAction(void)
     DoBounceEffect(gActiveBattler, BOUNCE_HEALTHBOX, 7, 1);
     DoBounceEffect(gActiveBattler, BOUNCE_MON, 7, 1);
 
+    // Gunk: Quick Ball (L throws the widget's ball, L + Left / Right picks another) and Quick Run (R runs)
+    switch (GunkQuickBall_HandleInput())
+    {
+    case QUICK_BALL_THROW:
+        PlaySE(SE_SELECT);
+        DestroyMenuCursor();
+        BtlController_EmitTwoReturnValues(B_COMM_TO_ENGINE, B_ACTION_USE_ITEM, 0);
+        PlayerBufferExecCompleted();
+        return;
+    case QUICK_BALL_CONSUMED:
+        return;
+    }
+    if (JOY_NEW(R_BUTTON) && !(gBattleTypeFlags & BATTLE_TYPE_LINK))
+    {
+        PlaySE(SE_SELECT);
+        DestroyMenuCursor();
+        GunkQuickBall_Hide();
+        BtlController_EmitTwoReturnValues(B_COMM_TO_ENGINE, B_ACTION_RUN, 0);
+        PlayerBufferExecCompleted();
+        return;
+    }
+
     if (JOY_NEW(A_BUTTON))
     {
         PlaySE(SE_SELECT);
         DestroyMenuCursor();
+        GunkQuickBall_Hide();
 
         // Useless switch statement.
         switch (gActionSelectionCursor[gActiveBattler])
@@ -423,6 +447,7 @@ void HandleInputChooseAction(void)
                     return;
             }
             PlaySE(SE_SELECT);
+            GunkQuickBall_Hide();
             BtlController_EmitTwoReturnValues(B_COMM_TO_ENGINE, B_ACTION_CANCEL_PARTNER, 0);
             PlayerBufferExecCompleted();
             DestroyMenuCursor();
@@ -1574,6 +1599,7 @@ static void CompleteWhenChoseItem(void)
 {
     if (gMain.callback2 == BattleMainCB2 && !gPaletteFade.active)
     {
+        GunkQuickBall_RememberBall(gSpecialVar_ItemId);
         BtlController_EmitOneReturnValue(B_COMM_TO_ENGINE, gSpecialVar_ItemId);
         PlayerBufferExecCompleted();
     }
@@ -2654,6 +2680,7 @@ void PlayerHandleChooseAction(void)
     Text_FillWindowRect(&gWindowTemplate_Contest_MoveDescription, 10, 2, 35, 16, 38);
 
     gBattlerControllerFuncs[gActiveBattler] = HandleInputChooseAction;
+    GunkQuickBall_Show();  // Gunk: the Quick Ball widget, in wild battles where balls can be thrown
 
     Text_InitWindow(&gWindowTemplate_Contest_MoveDescription, BattleText_MenuOptions, 400, 18, 35);
     Text_PrintWindow8002F44(&gWindowTemplate_Contest_MoveDescription);
@@ -2699,6 +2726,16 @@ void sub_80304A8(void)
 static void PlayerHandleChooseItem(void)
 {
     s32 i;
+    u16 quickBall = GunkQuickBall_TakePendingThrow();
+
+    // Gunk: a ball thrown with L goes straight to the battle, without the bag
+    if (quickBall != ITEM_NONE)
+    {
+        gSpecialVar_ItemId = quickBall;
+        BtlController_EmitOneReturnValue(B_COMM_TO_ENGINE, quickBall);
+        PlayerBufferExecCompleted();
+        return;
+    }
 
     BeginNormalPaletteFade(PALETTES_ALL, 0, 0, 0x10, RGB_BLACK);
     gBattlerControllerFuncs[gActiveBattler] = OpenBagAndChooseItem;

@@ -174,6 +174,7 @@
 #define VAR_GUNK_LAST_REPEL               0x40F0 // the Repel kind last used, for the Repel prompt
 #define VAR_GUNK_SETTINGS                 0x40F1 // GUNK_* switch bits (include/gunk.h)
 #define VAR_GUNK_REGISTERED_2             0x40F2 // the second registered item, used with L
+#define VAR_GUNK_LAST_BALL                0x40F3 // the ball kind thrown last, Quick Ball's default
 
 #define VARS_END                          0x40FF
 

@@ -24,11 +24,33 @@ void InitTimeBasedEvents(void)
     VarSet(VAR_DAYS, gLocalTime.days);
 }
 
+// Gunk: true when time a is before time b
+static bool8 GunkTimeBefore(struct Time *a, struct Time *b)
+{
+    if (a->days != b->days)
+        return a->days < b->days;
+    if (a->hours != b->hours)
+        return a->hours < b->hours;
+    if (a->minutes != b->minutes)
+        return a->minutes < b->minutes;
+    return a->seconds < b->seconds;
+}
+
 void DoTimeBasedEvents(void)
 {
     if (FlagGet(FLAG_SYS_CLOCK_SET))
     {
         RtcCalcLocalTime();
+        // Gunk: on the play-time clock (the RTC reports a power failure), never run behind the last berry update.
+        // A battery that dies after the clock was set on a working RTC would otherwise put the clock years back,
+        // and berries and daily events would stop; carry on from that time instead.
+        if ((RtcGetErrorStatus() & RTC_ERR_FLAG_MASK)
+         && GunkTimeBefore(&gLocalTime, &gSaveBlock2.lastBerryTreeUpdate))
+        {
+            struct Time *last = &gSaveBlock2.lastBerryTreeUpdate;
+
+            RtcCalcLocalTimeOffset(last->days, last->hours, last->minutes, last->seconds);
+        }
         UpdatePerDay(&gLocalTime);
         UpdatePerMinute(&gLocalTime);
     }

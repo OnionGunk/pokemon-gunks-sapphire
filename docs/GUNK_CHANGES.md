@@ -17,7 +17,7 @@ checks), `story.py` (scripted play from a new game through Mom's gifts).
 | # | Change | Verdict | Sapphire | Status |
 |---|---|---|---|---|
 | 1 | ROM header title `GUNK SA` (game code stays `AXPE`: 128 KB flash + RTC) | port | `TITLE` in `config.mk`. | ✅ |
-| 2 | Title-screen logo | adapt | Needs art. | ⏳ |
+| 2 | Title-screen logo | adapt | The user's "Pokémon Gunk's Sapphire Version" art, keyed and scaled to 182x87 on the logo layer (banner sprites empty). Checked on the title screen and through its animation. | ✅ |
 
 ## Save safety
 

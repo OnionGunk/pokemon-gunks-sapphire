@@ -125,24 +125,33 @@ u8 GunkDexNavMenuEntries(const u8 **texts)
     return i;
 }
 
+// A level the species can have here: one of its slots, then a level in that slot's range (as a wild encounter
+// rolls it). The lowest-to-highest range over all its slots would allow levels between slots (e.g. 25 for a
+// species found at 24 and 26), which no wild encounter gives and legality checkers reject.
 static u8 PickLevel(u16 species)
 {
     const struct WildPokemonInfo *land = GetLandMons();
-    u8 min = 100, max = 1;
-    u8 i;
+    const struct WildPokemon *mon;
+    u8 slots[LAND_SLOTS];
+    u8 count = 0;
+    u8 i, min, max;
 
     for (i = 0; i < LAND_SLOTS; i++)
     {
-        const struct WildPokemon *mon = &land->wildPokemon[i];
-        if (mon->species != species)
-            continue;
-        if (mon->minLevel < min)
-            min = mon->minLevel;
-        if (mon->maxLevel > max)
-            max = mon->maxLevel;
+        if (land->wildPokemon[i].species == species)
+            slots[count++] = i;
     }
+    if (count == 0)
+        return 5;
+    mon = &land->wildPokemon[slots[Random() % count]];
+    min = mon->minLevel;
+    max = mon->maxLevel;
     if (max < min)
-        max = min;
+    {
+        u8 temp = min;
+        min = max;
+        max = temp;
+    }
     return min + Random() % (max - min + 1);
 }
 

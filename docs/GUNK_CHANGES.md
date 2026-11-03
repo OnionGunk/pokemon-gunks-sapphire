@@ -46,6 +46,6 @@ checks), `story.py` (scripted play from a new game through Mom's gifts).
 | 18 | HM moves without teaching | port | With the Stone Badge and HM01 in the bag, Torchic's party menu offers CUT without knowing it; without HM01 it doesn't. | ✅ |
 | 19 | Move Tutor in every PC | adapt | Oldale's PC → MOVE TUTOR → FORGET: Torchic forgot Growl (no Heart Scale). REMEMBER not exercised. | ✅ |
 | 20 | Eggs hatch twice as fast | port | Two egg cycles per 256 steps: an egg's cycles went 20 → 18 at one step count. | ✅ |
-| 21 | DexNav key item | adapt | On Route 101 from Select: the list (unseen as ?????), a Wurmple hidden 4 tiles away, a battle with it on stepping in, chain 1 after it. | ✅ |
+| 21 | DexNav key item | adapt | On Route 101 from Select: the list (unseen as ?????), a Wurmple hidden 4 tiles away, a battle with it on stepping in, chain 1 after it. **Legality (PKHeX.Core 26.10.18):** DexNav Pokémon at chains 0/10/20 and search levels 0/50/255, RNG-seeded shinies (with and without bonus rolls), normal wild Pokémon and a catch all VALID (Method 1/2/4). Found and fixed: levels between a species' slots (e.g. 25 for one found at 24 and 26) were possible and invalid; the level now comes from one of its slots. | ✅ |
 | 22 | Mom's gifts | adapt | With the Running Shoes Mom gives the Endless Repel, Exp. All and DexNav (seen in the story run). | ✅ |
 | 23 | Following Pokémon | adapt | Sprites from pokeemerald-expansion. Torchic follows the player around Littleroot and through the story run; no long sweep yet. | ✅ |

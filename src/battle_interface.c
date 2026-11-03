@@ -2030,6 +2030,9 @@ static int sub_8045F58(s32 a, s32 b, int c, int *d, u8 e, u16 f)
     {
         int r0 = (a << 8) / r2;
 
+        // Gunk: the EXP bar (scale 8) moves two pixels a frame here too, when the level spans fewer than 64 points
+        if (e == 8)
+            r0 *= 2;
         if (c < 0)
         {
             *d = r6 + r0;

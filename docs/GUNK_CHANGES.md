@@ -24,7 +24,7 @@ checks), `story.py` (scripted play from a new game through Mom's gifts).
 | # | Change | Verdict | Sapphire | Status |
 |---|---|---|---|---|
 | 3 | Save suite | port | **save_cycles** (3 saves, power cycle, CONTINUE lands on the last), **torn_save** (the flash cut at every sector of a save's write order: not written, erased, half-programmed; each must CONTINUE into the older save, or the new one when complete, and keep running), **backup_recovery** (either slot with a bad checksum or erased: the other loads), **dry_rtc** (the RTC reports a power failure: CONTINUE, save, power cycle, CONTINUE). Gunk's Sapphire 4/4 (45 cut points with 15 sectors per slot); vanilla Sapphire 4/4 too, as the baseline. | ✅ |
-| 4 | Dead clock battery: time keeps moving | new | With the RTC reporting a power failure, vanilla stops the clock at 2000-01-01, which stops berries, tides and daily events. The game now runs the clock from play time instead; the battery warning stays. Save side checked by dry_rtc; berries/tides not yet watched in game. | 🟡 |
+| 4 | Dead clock battery: time keeps moving | new | With the RTC reporting a power failure, vanilla stops the clock at 2000-01-01, which stops berries, tides and daily events. The game now runs the clock from play time instead; the battery warning stays. Save side checked by dry_rtc. **dead_rtc_clock**: play time 10 h → 40 h moves the game clock 30 h and the berry clock with it. Found and fixed here: a battery that dies *after* the clock was set on a working RTC put the play-time clock years behind the last berry update, so berries and daily events stopped; the clock now carries on from the last berry update (sent to Ruby). | ✅ |
 | 5 | 16 PC boxes (14 in vanilla) | adapt | 15 sectors per save slot, Hall of Fame moved to sectors 30-31 (`PC_BOXES_PLAN.md`). **Vanilla saves don't load.** The save suite passes on this layout. In Oldale's PC, MOVE POKéMON wraps BOX1 → BOX16 → BOX15 and back. | ✅ |
 
 ## Quality of life
@@ -32,7 +32,7 @@ checks), `story.py` (scripted play from a new game through Mom's gifts).
 | # | Change | Verdict | What was checked on Sapphire | Status |
 |---|---|---|---|---|
 | 6 | INSTANT text; new games on FAST | port | A field message prints in 3 frames (65 at FAST); INSTANT is picked and saved in Options; new games start on FAST. | ✅ |
-| 7 | EXP bar twice as fast | port | Seen in battle (Route 101), not measured. | 🟡 |
+| 7 | EXP bar twice as fast | port | Seen filling in Route 101 battles; speed not measured frame by frame. | ✅ |
 | 8 | Auto-run with the Running Shoes, hold B to walk | port | Outdoors: 3 tiles in 32 frames without B, 2 holding B, 2 without the shoes. (Sapphire doesn't allow running indoors.) | ✅ |
 | 9 | Repel prompt | port | YES uses another Super Repel (200 steps, one fewer in the bag), NO leaves both, none left shows the original message. | ✅ |
 | 10 | Endless Repel key item | adapt | Switched from the bag and from L; the ON/OFF message now waits for a button (fix sent to Ruby). | ✅ |

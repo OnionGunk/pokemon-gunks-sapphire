@@ -50,3 +50,14 @@ checks), `story.py` (scripted play from a new game through Mom's gifts).
 | 22 | Mom's gifts | adapt | With the Running Shoes Mom gives the Endless Repel, Exp. All and DexNav (seen in the story run). | ✅ |
 | 23 | Following Pokémon | adapt | Sprites from pokeemerald-expansion. Torchic follows the player around Littleroot and through the story run; no long sweep yet. | ✅ |
 | 24 | Quick Run (R) and Quick Ball (L) in battle | new | R on the action menu runs. In wild battles where balls can be thrown, a bottom-left widget shows a ball, its count (≤ 99) and an L hint; tap L to throw it, hold L + Left / Right to pick another kind; it starts on the kind thrown last (`VAR_GUNK_LAST_BALL`, no save layout change). Checked: Poké Ball ×5 shown, L + Right → Great Ball ×3, tap L threw one (3 → 2, remembered, caught); R ran; no widget without balls. | ✅ |
+
+## Story checks (toward v1.0)
+
+`sapphire-tools/emu/suite/gyms.py`, against vanilla Sapphire: from the state after Mom's gifts, with the earlier
+badges set and an overpowered test party, the player is put in front of each leader and plays the fight and the
+badge scene. All eight leaders (Roxanne … Wallace) give their badge on both ROMs, and the flags afterwards are
+identical (the only differing vars are the friendship step counter and the lottery number, which come from the
+two base saves). The Elite Four, the Champion, the Hall of Fame ceremony and the credits run through to the title
+screen on both; Gunk's Sapphire writes the Hall of Fame to sectors 30-31 (16-box layout), vanilla to 28-29, and
+after a power cycle CONTINUE loads with the game-clear flag set. Not covered yet: the story scenes between the
+gyms (Team Aqua, Kyogre) played in order.

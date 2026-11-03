@@ -21,7 +21,9 @@ and shares its code with its sister hack, Gunk's Ruby.
 - **A dead clock battery doesn't stop time:** most Sapphire carts' clock batteries have run dry, which freezes
   berries, tides and daily events. When the clock reports a power failure, the game runs its clock from play time
   instead.
-- Planned: following Pokémon and more PC boxes.
+- **Following Pokémon** and **16 PC boxes**.
+- **Quick Run and Quick Ball:** R runs from battle; in wild battles tap L to throw the ball shown at the bottom left,
+  hold L + Left / Right to pick another kind.
 
 Save safety comes first: every build passes an emulator test suite that covers save cycles, power cycles, a power
 cut at every sector of a save, recovery from either damaged save slot, and saving with a dead clock battery.
@@ -53,7 +55,8 @@ toolchain notes for MSYS2.
 - [pret](https://github.com/pret/pokeruby) for the Ruby and Sapphire decompilation this hack is built on, and
   [agbcc](https://github.com/pret/agbcc).
 - [pokeemerald-expansion](https://github.com/rh-hideout/pokeemerald-expansion) (RHH and contributors) as the
-  reference for several features, and for the follower sprites.
+  reference for several features (Quick Ball follows its B_LAST_USED_BALL / B_LAST_USED_BALL_CYCLE), and for
+  the follower sprites.
 - The DexNav idea comes from later Pokémon games and fan hacks such as Pokémon Unbound.
 - The feature code is shared with Gunk's Ruby (same decomp), written by Claude for the Gunk's line.
 

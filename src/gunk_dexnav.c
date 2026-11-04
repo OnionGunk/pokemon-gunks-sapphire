@@ -419,6 +419,14 @@ void GunkDexNavBattleEnded(u8 outcome)
     }
     sDexNav.inBattle = FALSE;
     sDexNav.active = FALSE;
-    if ((outcome == B_OUTCOME_WON || outcome == B_OUTCOME_CAUGHT) && sDexNav.chain < 255)
-        sDexNav.chain++;
+    // Beating or catching it grows the chain; running (or anything else) ends it
+    if (outcome == B_OUTCOME_WON || outcome == B_OUTCOME_CAUGHT)
+    {
+        if (sDexNav.chain < 255)
+            sDexNav.chain++;
+    }
+    else
+    {
+        sDexNav.chain = 0;
+    }
 }

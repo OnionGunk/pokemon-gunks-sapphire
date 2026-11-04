@@ -1237,7 +1237,22 @@ static bool8 GetAvailableObjectEventId(u16 localId, u8 mapNum, u8 mapGroup, u8 *
             return TRUE;
     }
     if (i >= OBJECT_EVENTS_COUNT)
+    {
+        // Gunk: all 16 slots live: a map object comes before the follower, which gives up its slot (it comes
+        // back when one is free)
+        if (localId == GUNK_FOLLOWER_LOCAL_ID)
+            return TRUE;
+        for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
+        {
+            if (GunkIsFollower(&gObjectEvents[i]))
+            {
+                GunkRemoveObjectEvent(&gObjectEvents[i]);
+                *objectEventId = i;
+                return FALSE;
+            }
+        }
         return TRUE;
+    }
     *objectEventId = i;
     for (; i < OBJECT_EVENTS_COUNT; i++)
     {

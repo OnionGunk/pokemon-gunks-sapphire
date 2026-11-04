@@ -1608,17 +1608,68 @@ Text_RepelWoreOffUseAnother:
 	.string "REPEL's effect wore off...\n"
 	.string "Use another {STR_VAR_2}?$"
 
-@ Gunk: talking to the following Pokémon
+@ Gunk: talking to the following Pokémon. GunkFollowerCry (src/gunk_follower.c) plays its cry and picks the
+@ line in VAR_RESULT: 0 tired (under 1/4 HP), then by friendship 1 wary (<50), 2 shy (<100), 3 steady (<200),
+@ 4 happy (<255), 5 devoted (255).
 EventScript_GunkFollower::
 	lock
+	faceplayer
 	special GunkFollowerCry
+	switch VAR_RESULT
+	case 0, EventScript_GunkFollowerTired
+	case 1, EventScript_GunkFollowerWary
+	case 2, EventScript_GunkFollowerShy
+	case 3, EventScript_GunkFollowerSteady
+	case 4, EventScript_GunkFollowerHappy
+	msgbox Text_GunkFollowerDevoted, MSGBOX_DEFAULT
+	goto EventScript_GunkFollowerEnd
+
+EventScript_GunkFollowerTired:
+	msgbox Text_GunkFollowerTired, MSGBOX_DEFAULT
+	goto EventScript_GunkFollowerEnd
+
+EventScript_GunkFollowerWary:
+	msgbox Text_GunkFollowerWary, MSGBOX_DEFAULT
+	goto EventScript_GunkFollowerEnd
+
+EventScript_GunkFollowerShy:
+	msgbox Text_GunkFollowerShy, MSGBOX_DEFAULT
+	goto EventScript_GunkFollowerEnd
+
+EventScript_GunkFollowerSteady:
+	msgbox Text_GunkFollowerSteady, MSGBOX_DEFAULT
+	goto EventScript_GunkFollowerEnd
+
+EventScript_GunkFollowerHappy:
 	msgbox Text_GunkFollowerHappy, MSGBOX_DEFAULT
+EventScript_GunkFollowerEnd:
 	waitmoncry
 	release
 	end
 
+Text_GunkFollowerTired:
+	.string "{STR_VAR_1} is worn out.\n"
+	.string "It could use a rest.$"
+
+Text_GunkFollowerWary:
+	.string "{STR_VAR_1} keeps its distance.\n"
+	.string "It doesn't quite trust you yet.$"
+
+Text_GunkFollowerShy:
+	.string "{STR_VAR_1} glances at you,\n"
+	.string "then looks away.$"
+
+Text_GunkFollowerSteady:
+	.string "{STR_VAR_1} is keeping pace\n"
+	.string "right behind you.$"
+
 Text_GunkFollowerHappy:
-	.string "{STR_VAR_1} is happy to be with you!$"
+	.string "{STR_VAR_1} is following you\n"
+	.string "happily.$"
+
+Text_GunkFollowerDevoted:
+	.string "{STR_VAR_1} is beaming!\n"
+	.string "It would follow you anywhere.$"
 
 @ Gunk: DexNav
 EventScript_GunkDexNav::

@@ -10,6 +10,7 @@
 // objects. The movement type itself is MovementType_GunkFollow in event_object_movement.c.
 #include "global.h"
 #include "gunk.h"
+#include "event_data.h"
 #include "event_object_movement.h"
 #include "field_player_avatar.h"
 #include "fieldmap.h"
@@ -252,10 +253,29 @@ void GunkFollowerStripFromSave(struct ObjectEvent *objectEvents)
     }
 }
 
-// Special for talking to the follower: its cry
+// The follower's line (EventScript_GunkFollower switches on VAR_RESULT): tired under a quarter of its HP,
+// else by friendship (under 50, 50-99, 100-199, 200-254, 255). Plays its cry and puts its nickname in
+// STR_VAR_1; reads only.
 void GunkFollowerCry(void)
 {
+    struct Pokemon *mon = &gPlayerParty[0];
+    u8 friendship = GetMonData(mon, MON_DATA_FRIENDSHIP);
+    u16 hp = GetMonData(mon, MON_DATA_HP), maxHp = GetMonData(mon, MON_DATA_MAX_HP);
+
     if (sFollowerSpecies != SPECIES_NONE)
         PlayCry_Normal(sFollowerSpecies, 0);
-    StringCopy(gStringVar1, gSpeciesNames[sFollowerSpecies]);
+    GetMonData(mon, MON_DATA_NICKNAME, gStringVar1);
+    StringGetEnd10(gStringVar1);
+    if (hp * 4 < maxHp)
+        gSpecialVar_Result = 0;
+    else if (friendship == 255)
+        gSpecialVar_Result = 5;
+    else if (friendship >= 200)
+        gSpecialVar_Result = 4;
+    else if (friendship >= 100)
+        gSpecialVar_Result = 3;
+    else if (friendship >= 50)
+        gSpecialVar_Result = 2;
+    else
+        gSpecialVar_Result = 1;
 }

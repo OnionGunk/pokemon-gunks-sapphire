@@ -406,11 +406,11 @@ static const u8 *GetInteractedObjectEventScript(struct MapPosition *position, u8
             return NULL;
     }
 
-    if (GunkIsFollower(&gObjectEvents[objectEventId]))
-        return EventScript_GunkFollower; // Gunk: no map template behind the follower
     gSelectedObjectEvent = objectEventId;
     gSpecialVar_LastTalked = gObjectEvents[objectEventId].localId;
     gSpecialVar_Facing = direction;
+    if (GunkIsFollower(&gObjectEvents[objectEventId]))
+        return EventScript_GunkFollower; // Gunk: no map template behind the follower
     script = GetObjectEventScriptPointerByObjectEventId(objectEventId);
     script = GetRamScript(gSpecialVar_LastTalked, script);
     return script;

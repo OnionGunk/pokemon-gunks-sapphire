@@ -519,7 +519,7 @@ u8 GunkDexNavHeldItemBonus(void)
     if (!sDexNav.inBattle)
         return 0;
     bonus = *SearchLevel(sDexNav.species) / 10 + sDexNav.chain;
-    if (GetMonAbility(&gPlayerParty[0]) == ABILITY_COMPOUND_EYES)
+    if (!GetMonData(&gPlayerParty[0], MON_DATA_IS_EGG) && GetMonAbility(&gPlayerParty[0]) == ABILITY_COMPOUND_EYES)
         bonus += 10;
     return bonus > 30 ? 30 : bonus;
 }

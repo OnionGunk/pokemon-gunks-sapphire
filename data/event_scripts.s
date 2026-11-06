@@ -1693,8 +1693,11 @@ EventScript_GunkDexNavAgain::
 	goto EventScript_GunkDexNavResult
 	end
 
-@ VAR_RESULT: 0 no grass patch, 1 in the grass, 2 no water patch, 3 in the water (gunk_dexnav.c SEARCH_*)
+@ VAR_RESULT: 0 no grass patch, 1 in the grass, 2 no water patch, 3 in the water, 4 in the Safari Zone
+@ (gunk_dexnav.c SEARCH_*)
 EventScript_GunkDexNavResult:
+	compare VAR_RESULT, 4
+	goto_if_eq EventScript_GunkDexNavSafari
 	compare VAR_RESULT, 0
 	goto_if_eq EventScript_GunkDexNavNoPatch
 	compare VAR_RESULT, 2
@@ -1732,6 +1735,11 @@ EventScript_GunkDexNavNoneHere:
 
 EventScript_GunkDexNavFoundWater:
 	msgbox Text_GunkDexNavFoundWater, MSGBOX_DEFAULT
+	goto EventScript_GunkDexNavClose
+	end
+
+EventScript_GunkDexNavSafari:
+	msgbox Text_GunkDexNavSafari, MSGBOX_DEFAULT
 	goto EventScript_GunkDexNavClose
 	end
 
@@ -1773,6 +1781,10 @@ Text_GunkDexNavNoTarget:
 Text_GunkDexNavNotHere:
 	.string "There are no {STR_VAR_1}\n"
 	.string "around here.$"
+
+Text_GunkDexNavSafari:
+	.string "The DEXNAV can't search in the\n"
+	.string "SAFARI ZONE.$"
 
 Text_GunkDexNavNoWater:
 	.string "It lives in the water. SURF to\n"

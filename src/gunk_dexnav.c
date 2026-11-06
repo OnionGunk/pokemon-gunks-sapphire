@@ -25,6 +25,7 @@
 #include "pokedex.h"
 #include "pokemon.h"
 #include "random.h"
+#include "safari_zone.h"
 #include "script.h"
 #include "string_util.h"
 #include "text.h"
@@ -276,10 +277,14 @@ static void BufferSearchStrings(void)
 #define SEARCH_GRASS    1
 #define SEARCH_NO_WATER 2
 #define SEARCH_WATER    3
+#define SEARCH_SAFARI   4
 
 static void TrySearch(u16 species, bool8 water)
 {
-    if (StartSearch(species, water))
+    // No searches in the Safari Zone: its POKéMON must come from Safari encounters (Safari Ball, Safari rules)
+    if (GetSafariZoneFlag())
+        gSpecialVar_Result = SEARCH_SAFARI;
+    else if (StartSearch(species, water))
     {
         BufferSearchStrings();
         gSpecialVar_Result = water ? SEARCH_WATER : SEARCH_GRASS;
@@ -493,7 +498,7 @@ bool8 GunkDexNavTryEncounter(void)
     struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
     u8 *searchLevel;
 
-    if (!sDexNav.active || sDexNav.inBattle
+    if (!sDexNav.active || sDexNav.inBattle || GetSafariZoneFlag()
      || gSaveBlock1.location.mapGroup != sDexNav.mapGroup || gSaveBlock1.location.mapNum != sDexNav.mapNum
      || player->currentCoords.x != sDexNav.x || player->currentCoords.y != sDexNav.y)
         return FALSE;

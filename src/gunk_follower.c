@@ -17,6 +17,7 @@
 #include "metatile_behavior.h"
 #include "pokemon.h"
 #include "sound.h"
+#include "pokemon_icon.h"
 #include "sprite.h"
 #include "string_util.h"
 #include "text.h"
@@ -35,6 +36,7 @@ struct GunkFollowerGfx
 };
 
 #include "data/gunk_followers.h"
+#include "data/gunk_follower_unown.h"
 
 extern const struct OamData gFieldOamData_32x32;
 extern const struct OamData gFieldOamData_64x64;
@@ -93,14 +95,15 @@ EWRAM_DATA static struct ObjectEventGraphicsInfo sFollowerInfo = {0};
 EWRAM_DATA u16 gGunkFollowerPalette[16] = {0};
 EWRAM_DATA static u16 sFollowerSpecies = 0;
 EWRAM_DATA static bool8 sFollowerShiny = FALSE;
+EWRAM_DATA static u8 sFollowerForm = 0; // Unown's letter
 
 const struct ObjectEventGraphicsInfo *GunkFollowerGraphicsInfo(void)
 {
     return &sFollowerInfo;
 }
 
-// The party's first Pokémon if it should follow, else SPECIES_NONE
-static u16 GetLead(bool8 *shiny)
+// The party's first Pokémon if it should follow, else SPECIES_NONE; its form is Unown's letter (0 for the rest)
+static u16 GetLead(bool8 *shiny, u8 *form)
 {
     struct Pokemon *mon = &gPlayerParty[0];
     u16 species = GetMonData(mon, MON_DATA_SPECIES);
@@ -109,10 +112,11 @@ static u16 GetLead(bool8 *shiny)
      || GetMonData(mon, MON_DATA_IS_EGG) || GetMonData(mon, MON_DATA_HP) == 0)
         return SPECIES_NONE;
     *shiny = IsShiny(mon);
+    *form = species == SPECIES_UNOWN ? GetUnownLetterByPersonality(GetMonData(mon, MON_DATA_PERSONALITY)) : 0;
     return species;
 }
 
-static void FillGraphicsInfo(u16 species, bool8 shiny)
+static void FillGraphicsInfo(u16 species, bool8 shiny, u8 form)
 {
     const struct GunkFollowerGfx *gfx = &sGunkFollowerGfx[species];
 
@@ -133,8 +137,14 @@ static void FillGraphicsInfo(u16 species, bool8 shiny)
     sFollowerInfo.images = gfx->pics;
     sFollowerInfo.affineAnims = gDummySpriteAffineAnimTable;
     CpuCopy16(shiny ? gfx->shinyPalette : gfx->palette, gGunkFollowerPalette, sizeof(gGunkFollowerPalette));
+    if (species == SPECIES_UNOWN && form < ARRAY_COUNT(sUnownFormPics))
+    {
+        sFollowerInfo.images = sUnownFormPics[form];
+        CpuCopy16(shiny ? sUnownFormShinyPal : sUnownFormPal, gGunkFollowerPalette, sizeof(gGunkFollowerPalette));
+    }
     sFollowerSpecies = species;
     sFollowerShiny = shiny;
+    sFollowerForm = form;
 }
 
 static struct ObjectEvent *GetFollower(void)
@@ -191,13 +201,13 @@ static void RemoveFollower(void)
         GunkRemoveObjectEvent(follower);
 }
 
-static void SpawnFollower(u16 species, bool8 shiny)
+static void SpawnFollower(u16 species, bool8 shiny, u8 form)
 {
     struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
     struct ObjectEventTemplate template = {0};
     u8 id;
 
-    FillGraphicsInfo(species, shiny);
+    FillGraphicsInfo(species, shiny, form);
     template.localId = GUNK_FOLLOWER_LOCAL_ID;
     template.graphicsId = OBJ_EVENT_GFX_GUNK_FOLLOWER;
     template.kind = OBJ_KIND_NORMAL;
@@ -218,20 +228,21 @@ void GunkFollowerUpdate(void)
 {
     struct ObjectEvent *follower = GetFollower();
     bool8 shiny = FALSE;
-    u16 species = GetLead(&shiny);
+    u8 form = 0;
+    u16 species = GetLead(&shiny, &form);
 
     if (species == SPECIES_NONE || SlotTenTaken())
     {
         RemoveFollower();
         return;
     }
-    if (follower != NULL && (species != sFollowerSpecies || shiny != sFollowerShiny))
+    if (follower != NULL && (species != sFollowerSpecies || shiny != sFollowerShiny || form != sFollowerForm))
     {
         RemoveFollower();
         follower = NULL;
     }
     if (follower == NULL)
-        SpawnFollower(species, shiny);
+        SpawnFollower(species, shiny, form);
 }
 
 // A new map's objects were just spawned (warps, Continue): start without a follower and spawn a fresh one
@@ -254,10 +265,14 @@ void GunkFollowerStripFromSave(struct ObjectEvent *objectEvents)
 }
 
 // The follower's line (EventScript_GunkFollower switches on VAR_RESULT): tired under a quarter of its HP,
-// else by friendship (under 50, 50-99, 100-199, 200-254, 255). Plays its cry and puts its nickname in
-// STR_VAR_1; reads only.
+// else by friendship (under 50, 50-99, 100-199, 200-254, 255). Plays its cry, shows the mood's bubble over it
+// and puts its nickname in STR_VAR_1; reads only.
 void GunkFollowerCry(void)
 {
+    static const u8 sMoodEmotes[] = {
+        GUNK_EMOTE_DOTS, GUNK_EMOTE_EXCLAMATION, GUNK_EMOTE_QUESTION, GUNK_EMOTE_NOTE, GUNK_EMOTE_HEART, GUNK_EMOTE_HEART,
+    };
+    struct ObjectEvent *follower = GetFollower();
     struct Pokemon *mon = &gPlayerParty[0];
     u8 friendship = GetMonData(mon, MON_DATA_FRIENDSHIP);
     u16 hp = GetMonData(mon, MON_DATA_HP), maxHp = GetMonData(mon, MON_DATA_MAX_HP);
@@ -278,4 +293,6 @@ void GunkFollowerCry(void)
         gSpecialVar_Result = 2;
     else
         gSpecialVar_Result = 1;
+    if (follower != NULL)
+        GunkShowEmote(follower, sMoodEmotes[gSpecialVar_Result]);
 }

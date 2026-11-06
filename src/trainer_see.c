@@ -8,6 +8,7 @@
 #include "sprite.h"
 #include "task.h"
 #include "util.h"
+#include "gunk.h"
 #include "constants/event_object_movement.h"
 #include "constants/field_effects.h"
 #include "constants/trainer_types.h"
@@ -23,6 +24,10 @@ static void RunTrainerSeeFuncList(u8 taskId);
 const u8 gSpriteImage_839B308[] = INCBIN_U8("graphics/unknown_sprites/839B4E0/0.4bpp");
 const u8 gSpriteImage_839B388[] = INCBIN_U8("graphics/unknown_sprites/839B4E0/1.4bpp");
 const u8 gSpriteImage_839B408[] = INCBIN_U8("graphics/unknown_sprites/839B408.4bpp");
+// Gunk: the follower's ♪ and … bubbles, drawn like the heart (field effect palette 0)
+static const u8 sGunkEmoteNote[] = INCBIN_U8("graphics/gunk_emotes/note.4bpp");
+static const u8 sGunkEmoteDots[] = INCBIN_U8("graphics/gunk_emotes/dots.4bpp");
+static u8 sGunkHeartIconAnim;
 
 static u8 GetTrainerApproachDistanceSouth(struct ObjectEvent *trainerObj, s16 range, s16 x, s16 y);
 static u8 GetTrainerApproachDistanceNorth(struct ObjectEvent *trainerObj, s16 range, s16 x, s16 y);
@@ -470,7 +475,9 @@ static const struct SpriteFrameImage gSpriteImageTable_839B4E0[] = {
 };
 
 static const struct SpriteFrameImage gSpriteImageTable_839B4F0[] = {
-    { gSpriteImage_839B408, sizeof gSpriteImage_839B408 }
+    { gSpriteImage_839B408, sizeof gSpriteImage_839B408 },
+    { sGunkEmoteNote, sizeof sGunkEmoteNote },
+    { sGunkEmoteDots, sizeof sGunkEmoteDots }
 };
 
 static const union AnimCmd gSpriteAnim_839B4F8[] = {
@@ -483,9 +490,15 @@ static const union AnimCmd gSpriteAnim_839B500[] = {
     ANIMCMD_END
 };
 
+static const union AnimCmd sGunkAnim_Dots[] = {
+    ANIMCMD_FRAME(2, 60),
+    ANIMCMD_END
+};
+
 static const union AnimCmd *const gSpriteAnimTable_839B508[] = {
     gSpriteAnim_839B4F8,
-    gSpriteAnim_839B500
+    gSpriteAnim_839B500,
+    sGunkAnim_Dots
 };
 
 static const struct SpriteTemplate gSpriteTemplate_839B510 = {
@@ -520,9 +533,32 @@ u8 FldEff_HeartIcon(void)
     u8 spriteId = CreateSpriteAtEnd(&gSpriteTemplate_839B528, 0, 0, 0x52);
 
     if (spriteId != 64)
-        sub_8084894(&gSprites[spriteId], 46, 0);
+        sub_8084894(&gSprites[spriteId], 46, sGunkHeartIconAnim);
+    sGunkHeartIconAnim = 0;
 
     return 0;
+}
+
+// Gunk: a bubble over an object, as the emote movements show them: GUNK_EMOTE_* (heart, ♪ and … share the
+// heart's field effect and palette)
+void GunkShowEmote(struct ObjectEvent *objectEvent, u8 emote)
+{
+    static const u8 sFieldEffects[] = {
+        [GUNK_EMOTE_EXCLAMATION] = FLDEFF_EXCLAMATION_MARK_ICON,
+        [GUNK_EMOTE_QUESTION] = FLDEFF_QUESTION_MARK_ICON,
+        [GUNK_EMOTE_HEART] = FLDEFF_HEART_ICON,
+        [GUNK_EMOTE_NOTE] = FLDEFF_HEART_ICON,
+        [GUNK_EMOTE_DOTS] = FLDEFF_HEART_ICON,
+    };
+
+    if (emote == GUNK_EMOTE_NONE || emote >= ARRAY_COUNT(sFieldEffects))
+        return;
+    ObjectEventGetLocalIdAndMap(objectEvent, &gFieldEffectArguments[0], &gFieldEffectArguments[1], &gFieldEffectArguments[2]);
+    if (emote == GUNK_EMOTE_NOTE)
+        sGunkHeartIconAnim = 1;
+    else if (emote == GUNK_EMOTE_DOTS)
+        sGunkHeartIconAnim = 2;
+    FieldEffectStart(sFieldEffects[emote]);
 }
 
 static void sub_8084894(struct Sprite *sprite, u16 a2, u8 a3)

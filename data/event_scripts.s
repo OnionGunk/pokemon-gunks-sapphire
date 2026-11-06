@@ -1615,6 +1615,7 @@ EventScript_GunkFollower::
 	lock
 	faceplayer
 	special GunkFollowerCry
+	delay 30
 	switch VAR_RESULT
 	case 0, EventScript_GunkFollowerTired
 	case 1, EventScript_GunkFollowerWary

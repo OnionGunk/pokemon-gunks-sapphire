@@ -53,6 +53,15 @@ void GunkFollowerOnMapLoad(void);
 void GunkFollowerStripFromSave(struct ObjectEvent *objectEvents);
 void GunkFollowerCry(void);
 
+// Emote bubbles over an object (src/trainer_see.c)
+#define GUNK_EMOTE_NONE        0
+#define GUNK_EMOTE_EXCLAMATION 1
+#define GUNK_EMOTE_QUESTION    2
+#define GUNK_EMOTE_HEART       3
+#define GUNK_EMOTE_NOTE        4
+#define GUNK_EMOTE_DOTS        5
+void GunkShowEmote(struct ObjectEvent *objectEvent, u8 emote);
+
 // Quick Ball and Quick Run (src/gunk_quickball.c, battle_controller_player.c)
 #define QUICK_BALL_NONE     0
 #define QUICK_BALL_CONSUMED 1

@@ -26,7 +26,8 @@ and shares its code with its sister hack, Gunk's Ruby.
   berries, tides and daily events. When the clock reports a power failure, the game runs its clock from play time
   instead.
 - **Pokémon follow you:** the first Pokémon in your party walks behind you, every species with its own sprite.
-  Talk to it to hear how it feels about you. It goes back in its Poké Ball while you surf or bike.
+  Talk to it to see an emote and hear how it feels about you. It goes back in its Poké Ball (with the ball
+  animation) while you surf or bike and for story scenes. Unown follows as its own letter.
 - **16 PC boxes** (14 in the original game): a living dex of all 386 with spares.
 - **Quick Run and Quick Ball:** R runs from battle; in wild battles tap L to throw the ball shown at the bottom left,
   hold L + Left / Right to pick another kind.

@@ -1158,3 +1158,7 @@ graphics/gunk_followers/deoxys.4bpp: %.4bpp: %.png
 graphics/gunk_followers/chimecho.4bpp: %.4bpp: %.png
 	$(GBAGFX) $< $@ -mwidth 4 -mheight 4
 
+
+# Unown's letters (src/data/gunk_follower_unown.h): 32x32 frames like the rest
+graphics/gunk_followers/unown_forms/%.4bpp: graphics/gunk_followers/unown_forms/%.png
+	$(GBAGFX) $< $@ -mwidth 4 -mheight 4

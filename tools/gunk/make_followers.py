@@ -65,6 +65,9 @@ def main():
     header.extend(table)
     header.append('};')
     open(os.path.join(ROOT, 'src', 'data', 'gunk_followers.h'), 'w', newline='\n').write('\n'.join(header) + '\n')
+    # Unown's letters (src/data/gunk_follower_unown.h): 32x32 frames like the rest
+    rules.append('graphics/gunk_followers/unown_forms/%.4bpp: graphics/gunk_followers/unown_forms/%.png')
+    rules.append('\t$(GBAGFX) $< $@ -mwidth 4 -mheight 4')
     open(os.path.join(ROOT, 'gunk_followers.mk'), 'w', newline='\n').write('\n'.join(rules) + '\n')
     print(len(species), 'species')
 

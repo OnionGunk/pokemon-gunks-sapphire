@@ -19,6 +19,8 @@
 #include "sound.h"
 #include "pokemon_icon.h"
 #include "sprite.h"
+#include "field_weather.h"
+#include "constants/songs.h"
 #include "string_util.h"
 #include "text.h"
 #include "constants/event_object_movement.h"
@@ -145,6 +147,83 @@ static void FillGraphicsInfo(u16 species, bool8 shiny, u8 form)
     sFollowerSpecies = species;
     sFollowerShiny = shiny;
     sFollowerForm = form;
+}
+
+// The Poké Ball the follower comes out of or goes back into: the battle ball (closed, then open), on its tile
+#define GUNK_BALL_TAG 0x1121
+static const u8 sBallGfx[] = INCBIN_U8("graphics/interface/ball/poke.4bpp");
+static const u16 sBallPal[] = INCBIN_U16("graphics/interface/ball/poke.gbapal");
+static const struct SpriteSheet sBallSheet = {sBallGfx, sizeof(sBallGfx), GUNK_BALL_TAG};
+static const struct SpritePalette sBallPalette = {sBallPal, GUNK_BALL_TAG};
+static const struct OamData sBallOam = {.size = 1, .priority = 1};
+static const union AnimCmd sBallAnim[] = {
+    ANIMCMD_FRAME(0, 8),
+    ANIMCMD_FRAME(4, 8),
+    ANIMCMD_END,
+};
+static const union AnimCmd *const sBallAnims[] = {sBallAnim};
+static void SpriteCB_FollowerBall(struct Sprite *sprite);
+static const struct SpriteTemplate sBallTemplate = {
+    GUNK_BALL_TAG, GUNK_BALL_TAG, &sBallOam, sBallAnims, NULL, gDummySpriteAffineAnimTable, SpriteCB_FollowerBall,
+};
+static bool8 AnyBallShown(void)
+{
+    u8 i;
+
+    for (i = 0; i < MAX_SPRITES; i++)
+    {
+        if (gSprites[i].inUse && gSprites[i].callback == SpriteCB_FollowerBall)
+            return TRUE;
+    }
+    return FALSE;
+}
+
+static void SpriteCB_FollowerBall(struct Sprite *sprite)
+{
+    if (!sprite->animEnded)
+        return;
+    DestroySprite(sprite);
+    if (!AnyBallShown())
+    {
+        FreeSpriteTilesByTag(GUNK_BALL_TAG);
+        FreeSpritePaletteByTag(GUNK_BALL_TAG);
+    }
+}
+
+// The ball opening on the follower's tile (event_object_movement.c, as it comes out or goes back); nothing if
+// no sprite or palette is free
+void GunkFollowerShowBall(struct ObjectEvent *follower, s16 x, s16 y)
+{
+    u8 spriteId, paletteNum;
+    s16 sx, sy;
+
+    // (tags, not a count: changing maps and battles clear every sprite)
+    if (IndexOfSpritePaletteTag(GUNK_BALL_TAG) == 0xFF)
+    {
+        paletteNum = LoadSpritePalette(&sBallPalette);
+        if (paletteNum == 0xFF)
+            return;
+        UpdateSpritePaletteWithWeather(paletteNum);
+    }
+    if (GetSpriteTileStartByTag(GUNK_BALL_TAG) == 0xFFFF && LoadSpriteSheet(&sBallSheet) == 0)
+    {
+        FreeSpritePaletteByTag(GUNK_BALL_TAG);
+        return;
+    }
+    sub_8060388(x, y, &sx, &sy);
+    spriteId = CreateSprite(&sBallTemplate, sx + 8, sy + 8, 0);
+    if (spriteId == MAX_SPRITES)
+    {
+        if (!AnyBallShown())
+        {
+            FreeSpriteTilesByTag(GUNK_BALL_TAG);
+            FreeSpritePaletteByTag(GUNK_BALL_TAG);
+        }
+        return;
+    }
+    gSprites[spriteId].coordOffsetEnabled = TRUE;
+    gSprites[spriteId].oam.priority = gSprites[follower->spriteId].oam.priority;
+    PlaySE(SE_BALL_OPEN);
 }
 
 static struct ObjectEvent *GetFollower(void)

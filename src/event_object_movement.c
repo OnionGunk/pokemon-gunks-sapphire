@@ -4350,6 +4350,8 @@ static bool8 MovementType_GunkFollow_Step0(struct ObjectEvent *objectEvent, stru
     ClearObjectEventMovement(objectEvent, sprite);
     if (!GunkFollowerShouldShow())
     {
+        if (!objectEvent->invisible)
+            GunkFollowerShowBall(objectEvent, objectEvent->currentCoords.x, objectEvent->currentCoords.y);
         objectEvent->invisible = TRUE;
         SetObjectEventCoords(objectEvent, player->currentCoords.x, player->currentCoords.y);
         objectEvent->currentElevation = player->currentElevation;
@@ -4373,6 +4375,8 @@ static bool8 MovementType_GunkFollow_Step1(struct ObjectEvent *objectEvent, stru
 
     if (!GunkFollowerShouldShow())
     {
+        if (!objectEvent->invisible)
+            GunkFollowerShowBall(objectEvent, x, y);
         objectEvent->invisible = TRUE;
         sprite->data[1] = 0;
         return FALSE;
@@ -4388,6 +4392,7 @@ static bool8 MovementType_GunkFollow_Step1(struct ObjectEvent *objectEvent, stru
         objectEvent->previousElevation = player->previousElevation;
         objectEvent->facingDirection = player->movementDirection;
         objectEvent->invisible = FALSE;
+        GunkFollowerShowBall(objectEvent, targetX, targetY);
         ObjectEventSetSingleMovement(objectEvent, sprite, GetFaceDirectionMovementAction(player->movementDirection));
         objectEvent->singleMovementActive = TRUE;
         sprite->data[1] = 2;
@@ -4400,6 +4405,7 @@ static bool8 MovementType_GunkFollow_Step1(struct ObjectEvent *objectEvent, stru
     if ((dx < 0 ? -dx : dx) + (dy < 0 ? -dy : dy) != 1)
     {
         // fell behind (warp, jump, script): back into the ball until the next step
+        GunkFollowerShowBall(objectEvent, x, y);
         objectEvent->invisible = TRUE;
         SetObjectEventCoords(objectEvent, player->currentCoords.x, player->currentCoords.y);
         sub_805C058(objectEvent, player->currentCoords.x, player->currentCoords.y);

@@ -48,6 +48,7 @@ SECTIONS {
         src/rtc.o(.text);
         src/gunk.o(.text);
         src/gunk_dexnav.o(.text);
+        src/gunk_dexnav_screen.o(.text);
         src/gunk_follower.o(.text);
         src/gunk_quickball.o(.text);
         src/main_menu.o(.text);
@@ -479,6 +480,7 @@ SECTIONS {
         src/rtc.o(.rodata);
         src/gunk.o(.rodata);
         src/gunk_dexnav.o(.rodata);
+        src/gunk_dexnav_screen.o(.rodata);
         src/gunk_follower.o(.rodata);
         src/gunk_quickball.o(.rodata);
         src/main_menu.o(.rodata);

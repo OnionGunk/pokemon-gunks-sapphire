@@ -1677,11 +1677,10 @@ EventScript_GunkDexNav::
 	special GunkDexNavPrepare
 	compare VAR_RESULT, 0
 	goto_if_eq EventScript_GunkDexNavNoneHere
-	message Text_GunkDexNavWhich
-	waitmessage
-	special ScriptMenu_GunkDexNav
+	fadescreen 1
+	special GunkDexNavShowScreen
 	waitstate
-	compare VAR_RESULT, MULTI_B_PRESSED
+	compare VAR_RESULT, 0x7F @ GUNK_DEXNAV_CLOSED
 	goto_if_eq EventScript_GunkDexNavClose
 	special GunkDexNavStart
 	goto EventScript_GunkDexNavResult
@@ -1693,9 +1692,14 @@ EventScript_GunkDexNavAgain::
 	goto EventScript_GunkDexNavResult
 	end
 
+@ VAR_RESULT: 0 no grass patch, 1 in the grass, 2 no water patch, 3 in the water (gunk_dexnav.c SEARCH_*)
 EventScript_GunkDexNavResult:
 	compare VAR_RESULT, 0
 	goto_if_eq EventScript_GunkDexNavNoPatch
+	compare VAR_RESULT, 2
+	goto_if_eq EventScript_GunkDexNavNoWater
+	compare VAR_RESULT, 3
+	goto_if_eq EventScript_GunkDexNavFoundWater
 	msgbox Text_GunkDexNavFound, MSGBOX_DEFAULT
 	goto EventScript_GunkDexNavClose
 	end
@@ -1707,8 +1711,31 @@ EventScript_GunkDexNavGotAway::
 	releaseall
 	end
 
+@ R with nothing chosen yet, or the chosen POKéMON doesn't live here (gunk_dexnav.c locked the field)
+EventScript_GunkDexNavNoTarget::
+	lockall
+	msgbox Text_GunkDexNavNoTarget, MSGBOX_DEFAULT
+	goto EventScript_GunkDexNavClose
+	end
+
+EventScript_GunkDexNavNotHere::
+	lockall
+	msgbox Text_GunkDexNavNotHere, MSGBOX_DEFAULT
+	goto EventScript_GunkDexNavClose
+	end
+
 EventScript_GunkDexNavNoneHere:
 	msgbox Text_GunkDexNavNoneHere, MSGBOX_DEFAULT
+	goto EventScript_GunkDexNavClose
+	end
+
+EventScript_GunkDexNavFoundWater:
+	msgbox Text_GunkDexNavFoundWater, MSGBOX_DEFAULT
+	goto EventScript_GunkDexNavClose
+	end
+
+EventScript_GunkDexNavNoWater:
+	msgbox Text_GunkDexNavNoWater, MSGBOX_DEFAULT
 	goto EventScript_GunkDexNavClose
 	end
 
@@ -1719,23 +1746,36 @@ EventScript_GunkDexNavClose:
 	releaseall
 	end
 
-Text_GunkDexNavWhich:
-	.string "DEXNAV: search for which POKéMON?$"
-
 Text_GunkDexNavFound:
 	.string "{STR_VAR_1} Lv. {STR_VAR_2} is in the grass!\n"
+	.string "{STR_VAR_3}$"
+
+Text_GunkDexNavFoundWater:
+	.string "{STR_VAR_1} Lv. {STR_VAR_2} is in the water!\n"
 	.string "{STR_VAR_3}$"
 
 Text_GunkDexNavGotAway:
 	.string "The {STR_VAR_1} got away...$"
 
 Text_GunkDexNavNoneHere:
-	.string "There are no POKéMON in the grass\n"
+	.string "There are no wild POKéMON\n"
 	.string "around here.$"
 
 Text_GunkDexNavNoPatch:
 	.string "No tall grass close enough.\n"
 	.string "Try somewhere else.$"
+
+Text_GunkDexNavNoTarget:
+	.string "Choose a POKéMON on the DEXNAV\n"
+	.string "first.$"
+
+Text_GunkDexNavNotHere:
+	.string "There are no {STR_VAR_1}\n"
+	.string "around here.$"
+
+Text_GunkDexNavNoWater:
+	.string "It lives in the water. SURF to\n"
+	.string "search for it.$"
 
 Text_UsedAnotherRepel:
 	.string "{PLAYER} used the {STR_VAR_2}.$"

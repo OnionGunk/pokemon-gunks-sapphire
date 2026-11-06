@@ -604,27 +604,6 @@ static void StartScriptMenuTask(u8, u8, u8, u8, u8, u8);
 static void sub_80B53B4(u8, u8, u8, const struct MenuAction *list, u8);
 static bool8 IsPicboxClosed(void);
 
-// Gunk: the DexNav's list of this area's Pokémon (special, then waitstate; the pick goes to VAR_RESULT)
-EWRAM_DATA static struct MenuAction sGunkDexNavActions[GUNK_DEXNAV_MAX_CHOICES] = {0};
-
-bool8 ScriptMenu_GunkDexNav(void)
-{
-    const u8 *texts[GUNK_DEXNAV_MAX_CHOICES];
-    u8 i, count;
-
-    if (FuncIsActiveTask(Task_HandleMultichoiceInput) == TRUE)
-        return FALSE;
-    count = GunkDexNavMenuEntries(texts);
-    for (i = 0; i < count; i++)
-    {
-        sGunkDexNavActions[i].text = texts[i];
-        sGunkDexNavActions[i].func = NULL;
-    }
-    gSpecialVar_Result = 0xFF;
-    DrawMultichoiceMenu(0, 0, count, sGunkDexNavActions, FALSE, 0);
-    return TRUE;
-}
-
 bool8 ScriptMenu_Multichoice(u8 left, u8 top, u8 multichoiceId, u8 ignoreBPress)
 {
     if (FuncIsActiveTask(Task_HandleMultichoiceInput) == TRUE)

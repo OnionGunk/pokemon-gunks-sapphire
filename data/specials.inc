@@ -353,7 +353,7 @@ gSpecials::
 	def_special GunkCheckLastRepel
 	def_special GunkUseLastRepel
 	def_special GunkDexNavPrepare
-	def_special ScriptMenu_GunkDexNav
+	def_special GunkDexNavShowScreen
 	def_special GunkDexNavStart
 	def_special GunkDexNavStartLast
 	def_special GunkFollowerCry

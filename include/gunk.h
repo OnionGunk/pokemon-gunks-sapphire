@@ -16,16 +16,31 @@ const u8 *GunkTradeItemEffect(u16 item);
 bool8 GunkCanUseFieldMoveUntaught(struct Pokemon *mon, u16 move);
 
 // DexNav (src/gunk_dexnav.c)
-#define GUNK_DEXNAV_MAX_CHOICES 8
+#define GUNK_DEXNAV_LAND_MAX  12
+#define GUNK_DEXNAV_WATER_MAX 5
+#define GUNK_DEXNAV_WATER     16   // screen result: water entry n is GUNK_DEXNAV_WATER + n
+#define GUNK_DEXNAV_CLOSED    0x7F // screen result: closed with B
+struct GunkDexNavArea
+{
+    u16 land[GUNK_DEXNAV_LAND_MAX];
+    u16 water[GUNK_DEXNAV_WATER_MAX];
+    u8 landMin[GUNK_DEXNAV_LAND_MAX], landMax[GUNK_DEXNAV_LAND_MAX];
+    u8 waterMin[GUNK_DEXNAV_WATER_MAX], waterMax[GUNK_DEXNAV_WATER_MAX];
+    u8 landCount, waterCount;
+};
 void GunkDexNavPrepare(void);
-u8 GunkDexNavMenuEntries(const u8 **texts);
+const struct GunkDexNavArea *GunkDexNavGetArea(void);
+u8 GunkDexNavSearchLevel(u16 species);
+u8 GunkDexNavChain(u16 species);
+u16 GunkDexNavTarget(bool8 *water);
 void GunkDexNavStart(void);
 void GunkDexNavStartLast(void);
 bool8 GunkDexNavSearchAgain(void);
 void GunkDexNavUpdate(void);
 bool8 GunkDexNavTryEncounter(void);
 void GunkDexNavBattleEnded(u8 outcome);
-bool8 ScriptMenu_GunkDexNav(void);
+u8 GunkDexNavHeldItemBonus(void);
+void GunkDexNavShowScreen(void);
 
 // Following Pokémon (src/gunk_follower.c)
 #define GUNK_FOLLOWER_PAL_TAG 0x1120

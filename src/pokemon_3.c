@@ -1,4 +1,5 @@
 #include "global.h"
+#include "gunk.h"
 #include "constants/hold_effects.h"
 #include "constants/items.h"
 #include "constants/moves.h"
@@ -1324,15 +1325,16 @@ void SetWildMonHeldItem(void)
     {
         u16 rnd = Random() % 100;
         u16 species = GetMonData(&gEnemyParty[0], MON_DATA_SPECIES, 0);
+        u8 bonus = GunkDexNavHeldItemBonus(); // Gunk: DexNav battles find held items more often
         if (gBaseStats[species].item1 == gBaseStats[species].item2)
         {
             SetMonData(&gEnemyParty[0], MON_DATA_HELD_ITEM, &gBaseStats[species].item1);
             return;
         }
 
-        if (rnd > 44)
+        if (rnd > 44 - bonus)
         {
-            if (rnd <= 94)
+            if (rnd <= 94 - bonus / 3)
                 SetMonData(&gEnemyParty[0], MON_DATA_HELD_ITEM, &gBaseStats[species].item1);
             else
                 SetMonData(&gEnemyParty[0], MON_DATA_HELD_ITEM, &gBaseStats[species].item2);

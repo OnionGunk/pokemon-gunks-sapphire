@@ -38,6 +38,8 @@
 
 #define LAND_SLOTS 12
 #define WATER_SLOTS 5
+#define ROCK_SMASH_SLOTS 5
+#define FISHING_SLOTS 10
 #define RUSTLE_FRAMES 30  // the patch shakes twice a second
 #define SEARCH_FRAMES 600 // a search lasts 10 seconds of field time (the player free to move)
 #define MAX_DISTANCE 8
@@ -87,7 +89,7 @@ static void RollMon(void);
 static void SearchBar_Start(void);
 static void SearchBar_Keep(void);
 
-static const struct WildPokemonInfo *GetAreaMons(bool8 water)
+static const struct WildPokemonHeader *GetAreaHeader(void)
 {
     u16 i;
 
@@ -95,9 +97,18 @@ static const struct WildPokemonInfo *GetAreaMons(bool8 water)
     {
         if (gWildMonHeaders[i].mapGroup == gSaveBlock1.location.mapGroup
          && gWildMonHeaders[i].mapNum == gSaveBlock1.location.mapNum)
-            return water ? gWildMonHeaders[i].waterMonsInfo : gWildMonHeaders[i].landMonsInfo;
+            return &gWildMonHeaders[i];
     }
     return NULL;
+}
+
+static const struct WildPokemonInfo *GetAreaMons(bool8 water)
+{
+    const struct WildPokemonHeader *header = GetAreaHeader();
+
+    if (header == NULL)
+        return NULL;
+    return water ? header->waterMonsInfo : header->landMonsInfo;
 }
 
 static bool8 PlayerSurfing(void)
@@ -156,6 +167,42 @@ void GunkDexNavPrepare(void)
 const struct GunkDexNavArea *GunkDexNavGetArea(void)
 {
     return &sArea;
+}
+
+// The area's Pokémon found only with a rod (or only by Rock Smash): not in its grass or surfing lists, so the
+// DexNav can't search for them. Fills out[] (each species once) and returns how many; -1 if there are no such
+// encounters here at all. Needs GunkDexNavPrepare first.
+s8 GunkDexNavOnlyBy(bool8 rockSmash, u16 *out, u8 max)
+{
+    const struct WildPokemonHeader *header = GetAreaHeader();
+    const struct WildPokemonInfo *info;
+    u8 slots = rockSmash ? ROCK_SMASH_SLOTS : FISHING_SLOTS;
+    u8 count = 0;
+    u8 i, j;
+
+    if (header == NULL)
+        return -1;
+    info = rockSmash ? header->rockSmashMonsInfo : header->fishingMonsInfo;
+    if (info == NULL)
+        return -1;
+    for (i = 0; i < slots && count < max; i++)
+    {
+        u16 species = info->wildPokemon[i].species;
+
+        for (j = 0; j < sArea.landCount && sArea.land[j] != species; j++)
+            ;
+        if (j < sArea.landCount)
+            continue;
+        for (j = 0; j < sArea.waterCount && sArea.water[j] != species; j++)
+            ;
+        if (j < sArea.waterCount)
+            continue;
+        for (j = 0; j < count && out[j] != species; j++)
+            ;
+        if (j == count)
+            out[count++] = species;
+    }
+    return count;
 }
 
 u8 GunkDexNavSearchLevel(u16 species)
@@ -272,18 +319,22 @@ static void BufferSearchStrings(void)
     ConvertIntToDecimalStringN(s, sDexNav.chain, STR_CONV_MODE_LEFT_ALIGN, 3);
 }
 
-// VAR_RESULT after a search starts: no patch / found, for grass and for water
-#define SEARCH_NO_GRASS 0
-#define SEARCH_GRASS    1
-#define SEARCH_NO_WATER 2
-#define SEARCH_WATER    3
-#define SEARCH_SAFARI   4
+// VAR_RESULT after a search starts (event_scripts.s EventScript_GunkDexNavResult)
+#define SEARCH_NO_GRASS    0 // on land, no tall grass close enough
+#define SEARCH_GRASS       1
+#define SEARCH_NEEDS_SURF  2 // a water Pokémon, the player on land
+#define SEARCH_WATER       3
+#define SEARCH_SAFARI      4
+#define SEARCH_NO_WATER    5 // surfing, no open water close enough
+#define SEARCH_NEEDS_LAND  6 // a grass Pokémon, the player surfing
 
 static void TrySearch(u16 species, bool8 water)
 {
     // No searches in the Safari Zone: its POKéMON must come from Safari encounters (Safari Ball, Safari rules)
     if (GetSafariZoneFlag())
         gSpecialVar_Result = SEARCH_SAFARI;
+    else if (PlayerSurfing() != water)
+        gSpecialVar_Result = water ? SEARCH_NEEDS_SURF : SEARCH_NEEDS_LAND;
     else if (StartSearch(species, water))
     {
         BufferSearchStrings();

@@ -1693,15 +1693,19 @@ EventScript_GunkDexNavAgain::
 	goto EventScript_GunkDexNavResult
 	end
 
-@ VAR_RESULT: 0 no grass patch, 1 in the grass, 2 no water patch, 3 in the water, 4 in the Safari Zone
-@ (gunk_dexnav.c SEARCH_*)
+@ VAR_RESULT: 0 no grass patch, 1 in the grass, 2 needs Surf, 3 in the water, 4 in the Safari Zone,
+@ 5 no water patch, 6 needs land (gunk_dexnav.c SEARCH_*)
 EventScript_GunkDexNavResult:
 	compare VAR_RESULT, 4
 	goto_if_eq EventScript_GunkDexNavSafari
 	compare VAR_RESULT, 0
 	goto_if_eq EventScript_GunkDexNavNoPatch
 	compare VAR_RESULT, 2
-	goto_if_eq EventScript_GunkDexNavNoWater
+	goto_if_eq EventScript_GunkDexNavNeedsSurf
+	compare VAR_RESULT, 5
+	goto_if_eq EventScript_GunkDexNavNoWaterPatch
+	compare VAR_RESULT, 6
+	goto_if_eq EventScript_GunkDexNavNeedsLand
 	compare VAR_RESULT, 3
 	goto_if_eq EventScript_GunkDexNavFoundWater
 	msgbox Text_GunkDexNavFound, MSGBOX_DEFAULT
@@ -1743,8 +1747,18 @@ EventScript_GunkDexNavSafari:
 	goto EventScript_GunkDexNavClose
 	end
 
-EventScript_GunkDexNavNoWater:
-	msgbox Text_GunkDexNavNoWater, MSGBOX_DEFAULT
+EventScript_GunkDexNavNeedsSurf:
+	msgbox Text_GunkDexNavNeedsSurf, MSGBOX_DEFAULT
+	goto EventScript_GunkDexNavClose
+	end
+
+EventScript_GunkDexNavNoWaterPatch:
+	msgbox Text_GunkDexNavNoWaterPatch, MSGBOX_DEFAULT
+	goto EventScript_GunkDexNavClose
+	end
+
+EventScript_GunkDexNavNeedsLand:
+	msgbox Text_GunkDexNavNeedsLand, MSGBOX_DEFAULT
 	goto EventScript_GunkDexNavClose
 	end
 
@@ -1786,7 +1800,15 @@ Text_GunkDexNavSafari:
 	.string "The DEXNAV can't search in the\n"
 	.string "SAFARI ZONE.$"
 
-Text_GunkDexNavNoWater:
+Text_GunkDexNavNoWaterPatch:
+	.string "No open water close enough.\n"
+	.string "Try somewhere else.$"
+
+Text_GunkDexNavNeedsLand:
+	.string "It lives in the grass. Search\n"
+	.string "for it on land.$"
+
+Text_GunkDexNavNeedsSurf:
 	.string "It lives in the water. SURF to\n"
 	.string "search for it.$"
 

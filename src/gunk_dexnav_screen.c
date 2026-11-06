@@ -132,6 +132,10 @@ static const u8 sText_Berries[] = _("Ripe berry trees in HOENN: ");
 static const u8 sText_Feebas[] = _("FEEBAS today, fishing on these tiles:");
 static const u8 sText_FeebasElsewhere[] = _("FEEBAS tiles show on ROUTE 119.");
 static const u8 sText_FeebasNone[] = _("FEEBAS: no tiles on ROUTE 119 today.");
+static const u8 sText_OnlyRod[] = _("Only with a ROD: ");
+static const u8 sText_OnlyRockSmash[] = _("Only by ROCK SMASH: ");
+static const u8 sText_AllOnDexNav[] = _("Every POKéMON here is on the DEXNAV.");
+static const u8 sText_ListComma[] = _(", ");
 static const u8 sText_Comma[] = _(",");
 static const u8 sText_Space1[] = _(" ");
 static const u8 sText_Open[] = _("(");
@@ -540,11 +544,13 @@ static void SetIconsVisible(bool8 visible)
     }
 }
 
+static void PrintFeebas(void);
+static void PrintOnlyBy(void);
+
 static void PrintAreaInfo(void)
 {
     u16 species, daysLeft;
-    u8 group, num, level, n, i;
-    s16 xs[6], ys[6];
+    u8 group, num, level;
     u8 *s;
 
     s = StringCopy(gStringVar1, sText_Outbreak);
@@ -564,6 +570,17 @@ static void PrintAreaInfo(void)
     s = StringCopy(gStringVar1, sText_Berries);
     ConvertIntToDecimalStringN(s, GunkInfo_CountRipeBerryTrees(), STR_CONV_MODE_LEFT_ALIGN, 3);
     PrintColored(sText_InkColors, gStringVar1, 1, 5, FALSE);
+    PrintFeebas();
+    PrintOnlyBy();
+}
+
+// Route 119's Feebas tiles for today (elsewhere: where to look)
+static void PrintFeebas(void)
+{
+    s16 xs[6], ys[6];
+    u8 n, i;
+    u8 *s;
+
     if (gSaveBlock1.location.mapGroup != MAP_GROUP(MAP_ROUTE119)
      || gSaveBlock1.location.mapNum != MAP_NUM(MAP_ROUTE119))
     {
@@ -593,13 +610,42 @@ static void PrintAreaInfo(void)
     }
 }
 
+// The area's Pokémon the DexNav can't search for (a rod or Rock Smash only), in the small font
+static void PrintOnlyBy(void)
+{
+    u16 species[5];
+    u8 row = 14;
+    u8 kind, i;
+    s8 n;
+    u8 *s;
+
+    for (kind = 0; kind < 2; kind++)
+    {
+        n = GunkDexNavOnlyBy(kind == 1, species, ARRAY_COUNT(species));
+        if (n <= 0)
+            continue;
+        s = StringCopy(gStringVar1, kind == 1 ? sText_OnlyRockSmash : sText_OnlyRod);
+        for (i = 0; i < n; i++)
+        {
+            if (i > 0)
+                s = StringCopy(s, sText_ListComma);
+            s = StringCopy(s, gSpeciesNames[species[i]]);
+        }
+        PrintColored(sText_InkColors, gStringVar1, 1, row, TRUE);
+        row += 2;
+    }
+    if (row == 14)
+        PrintColored(sText_InkColors, sText_AllOnDexNav, 1, row, TRUE);
+}
+
 static void ShowInfoPage(bool8 show)
 {
     sScreen->infoPage = show;
-    Menu_EraseWindowRect(0, 2, 29, 12);
+    // the page covers the grids and the search panel (rows 2-18)
+    Menu_EraseWindowRect(0, 2, 29, SEARCH_TOP + SEARCH_HEIGHT - 1);
     if (show)
     {
-        DrawBox(0, 2, 30, 11, DNT_PANEL, 0);
+        DrawBox(0, 2, 30, SEARCH_TOP + SEARCH_HEIGHT - 2, DNT_PANEL, 0);
         SetIconsVisible(FALSE);
         PrintAreaInfo();
         return;
@@ -608,6 +654,7 @@ static void ShowInfoPage(bool8 show)
     SetIconsVisible(TRUE);
     PrintStaticText();
     PrintInfo();
+    PrintSearch();
 }
 
 // --- screen ---

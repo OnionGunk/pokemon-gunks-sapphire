@@ -33,6 +33,7 @@ const struct GunkDexNavArea *GunkDexNavGetArea(void);
 u8 GunkDexNavSearchLevel(u16 species);
 u8 GunkDexNavChain(u16 species);
 u16 GunkDexNavTarget(bool8 *water);
+s8 GunkDexNavOnlyBy(bool8 rockSmash, u16 *out, u8 max);
 void GunkDexNavStart(void);
 void GunkDexNavStartLast(void);
 bool8 GunkDexNavSearchAgain(void);

@@ -9,7 +9,9 @@
 //   info panel     the highlighted species: name, Not seen yet / Seen / Caught, where (grass or surfing) and
 //                  the area's level range, its search level
 //   search panel   the registered target (R searches for it) with its chain, and a hint
-//   footer         A: Select  B: Close
+//   footer         A: Select  B: Close  START: Info
+// START swaps the grids for the area info page (Gen 3's equivalents of Platinum's honey trees and Poké Radar):
+// the mass outbreak the TV announced, ripe berry trees, and on Route 119 today's Feebas tiles.
 // A on a cell returns its entry to the script in VAR_RESULT (GUNK_DEXNAV_WATER + n for water), B returns
 // GUNK_DEXNAV_CLOSED. Each game's look (tiles and palettes) is in graphics/gunk_dexnav/<game>/, drawn by
 // tools/gunk/dexnav_skin.py; the layout is the same for both.
@@ -23,6 +25,7 @@
 #include "palette.h"
 #include "pokedex.h"
 #include "pokemon_icon.h"
+#include "region_map.h"
 #include "scanline_effect.h"
 #include "sound.h"
 #include "sprite.h"
@@ -30,6 +33,7 @@
 #include "task.h"
 #include "text.h"
 #include "constants/songs.h"
+#include "constants/maps.h"
 #include "constants/species.h"
 
 #ifdef SAPPHIRE
@@ -80,6 +84,7 @@ struct DexNavScreen
     u8 iconSpriteIds[GUNK_DEXNAV_LAND_MAX + GUNK_DEXNAV_WATER_MAX];
     u8 cursor;          // cell: 0-9 land, 10-14 water
     bool8 tilemapDirty;
+    bool8 infoPage;
 };
 
 EWRAM_DATA static struct DexNavScreen *sScreen = NULL;
@@ -118,7 +123,19 @@ static const u8 sText_Caught[] = _("Caught ");
 static const u8 sText_Land[] = _("LAND");
 static const u8 sText_Water[] = _("WATER");
 static const u8 sText_Search[] = _("SEARCH");
-static const u8 sText_Footer[] = _("A: Select  B: Close");
+static const u8 sText_Footer[] = _("A Select B Close START Info");
+static const u8 sText_Outbreak[] = _("Outbreak: ");
+static const u8 sText_NoOutbreak[] = _("none on TV now");
+static const u8 sText_OutbreakLv[] = _(" Lv. ");
+static const u8 sText_OutbreakAt[] = _(", ");
+static const u8 sText_Berries[] = _("Ripe berry trees in HOENN: ");
+static const u8 sText_Feebas[] = _("FEEBAS today, fishing on these tiles:");
+static const u8 sText_FeebasElsewhere[] = _("FEEBAS tiles show on ROUTE 119.");
+static const u8 sText_FeebasNone[] = _("FEEBAS: no tiles on ROUTE 119 today.");
+static const u8 sText_Comma[] = _(",");
+static const u8 sText_Space1[] = _(" ");
+static const u8 sText_Open[] = _("(");
+static const u8 sText_Close[] = _(")");
 static const u8 sText_Unseen[] = _("?????");
 static const u8 sText_NotSeenYet[] = _("Not seen yet");
 static const u8 sText_Seen[] = _("Seen");
@@ -253,6 +270,8 @@ static void DrawBackground(void)
 
 // --- text ---
 
+// y is the tile row the letters sit on. A line of text is two rows tall and the small font draws in its lower
+// half, so small text is printed from the row above (whose upper half stays clear).
 static void PrintColored(const u8 *colors, const u8 *text, u8 x, u8 y, bool8 small)
 {
     u8 *s = StringCopy(gStringVar4, colors);
@@ -260,7 +279,7 @@ static void PrintColored(const u8 *colors, const u8 *text, u8 x, u8 y, bool8 sma
     if (small)
         s = StringCopy(s, sText_Small);
     StringCopy(s, text);
-    Menu_PrintText(gStringVar4, x, y);
+    Menu_PrintText(gStringVar4, x, small ? y - 1 : y);
 }
 
 static void PrintStaticText(void)
@@ -286,16 +305,17 @@ static void PrintStaticText(void)
         if (SpeciesFlag(species, FLAG_GET_CAUGHT))
             caught++;
     }
+    // the small labels first: each clears the row above its letters, where the title's lower half is
+    PrintColored(sText_TitleColors, sText_Land, 1, LAND_TOP - 1, TRUE);
+    PrintColored(sText_TitleColors, sText_Water, 1, WATER_TOP - 1, TRUE);
+    PrintColored(sText_TitleColors, sText_Search, 2, SEARCH_TOP, TRUE);
+    PrintColored(sText_TitleColors, sText_Footer, 3, FOOTER_ROW, TRUE);
     PrintColored(sText_TitleColors, sText_DexNav, 1, 0, FALSE);
     s = StringCopy(gStringVar1, sText_Caught);
     s = ConvertIntToDecimalStringN(s, caught, STR_CONV_MODE_LEFT_ALIGN, 2);
     *s++ = CHAR_SLASH;
     ConvertIntToDecimalStringN(s, total, STR_CONV_MODE_LEFT_ALIGN, 2);
     PrintColored(sText_TitleColors, gStringVar1, 21, 0, FALSE);
-    PrintColored(sText_TitleColors, sText_Land, 1, LAND_TOP - 1, TRUE);
-    PrintColored(sText_TitleColors, sText_Water, 1, WATER_TOP - 1, TRUE);
-    PrintColored(sText_TitleColors, sText_Search, 2, SEARCH_TOP, TRUE);
-    PrintColored(sText_TitleColors, sText_Footer, 11, FOOTER_ROW, TRUE);
 }
 
 static void PrintInfo(void)
@@ -507,6 +527,89 @@ static u8 StepRows(s8 dir)
     return NO_CELL;
 }
 
+// --- area info page ---
+
+static void SetIconsVisible(bool8 visible)
+{
+    u8 cell;
+
+    for (cell = 0; cell < GUNK_DEXNAV_LAND_MAX + GUNK_DEXNAV_WATER_MAX; cell++)
+    {
+        if (sScreen->iconSpriteIds[cell] != MAX_SPRITES)
+            gSprites[sScreen->iconSpriteIds[cell]].invisible = !visible;
+    }
+}
+
+static void PrintAreaInfo(void)
+{
+    u16 species, daysLeft;
+    u8 group, num, level, n, i;
+    s16 xs[6], ys[6];
+    u8 *s;
+
+    s = StringCopy(gStringVar1, sText_Outbreak);
+    if (GunkInfo_GetOutbreak(&species, &group, &num, &level, &daysLeft))
+    {
+        s = StringCopy(s, gSpeciesNames[species]);
+        s = StringCopy(s, sText_OutbreakLv);
+        s = ConvertIntToDecimalStringN(s, level, STR_CONV_MODE_LEFT_ALIGN, 3);
+        s = StringCopy(s, sText_OutbreakAt);
+        GetMapSectionName(s, Overworld_GetMapHeaderByGroupAndId(group, num)->regionMapSectionId, 0);
+    }
+    else
+    {
+        StringCopy(s, sText_NoOutbreak);
+    }
+    PrintColored(sText_InkColors, gStringVar1, 1, 3, FALSE);
+    s = StringCopy(gStringVar1, sText_Berries);
+    ConvertIntToDecimalStringN(s, GunkInfo_CountRipeBerryTrees(), STR_CONV_MODE_LEFT_ALIGN, 3);
+    PrintColored(sText_InkColors, gStringVar1, 1, 5, FALSE);
+    if (gSaveBlock1.location.mapGroup != MAP_GROUP(MAP_ROUTE119)
+     || gSaveBlock1.location.mapNum != MAP_NUM(MAP_ROUTE119))
+    {
+        PrintColored(sText_InkColors, sText_FeebasElsewhere, 1, 7, FALSE);
+        return;
+    }
+    n = GunkInfo_GetFeebasSpots(xs, ys);
+    if (n == 0)
+    {
+        PrintColored(sText_InkColors, sText_FeebasNone, 1, 7, FALSE);
+        return;
+    }
+    PrintColored(sText_InkColors, sText_Feebas, 1, 7, FALSE);
+    // the tiles as map coordinates, three to a line
+    for (i = 0; i < n; i++)
+    {
+        if (i % 3 == 0)
+            s = gStringVar1;
+        s = StringCopy(s, sText_Open);
+        s = ConvertIntToDecimalStringN(s, xs[i], STR_CONV_MODE_LEFT_ALIGN, 3);
+        s = StringCopy(s, sText_Comma);
+        s = ConvertIntToDecimalStringN(s, ys[i], STR_CONV_MODE_LEFT_ALIGN, 3);
+        s = StringCopy(s, sText_Close);
+        s = StringCopy(s, sText_Space1);
+        if (i % 3 == 2 || i == n - 1)
+            PrintColored(sText_InkColors, gStringVar1, 2, i < 3 ? 9 : 11, FALSE);
+    }
+}
+
+static void ShowInfoPage(bool8 show)
+{
+    sScreen->infoPage = show;
+    Menu_EraseWindowRect(0, 2, 29, 12);
+    if (show)
+    {
+        DrawBox(0, 2, 30, 11, DNT_PANEL, 0);
+        SetIconsVisible(FALSE);
+        PrintAreaInfo();
+        return;
+    }
+    DrawBackground();
+    SetIconsVisible(TRUE);
+    PrintStaticText();
+    PrintInfo();
+}
+
 // --- screen ---
 
 static void VBlankCB(void)
@@ -558,6 +661,7 @@ static void CB2_DexNavScreen(void)
 
     sScreen = &sScreenData;
     sScreen->cursor = FirstCell();
+    sScreen->infoPage = FALSE;
     DmaCopy16(3, sTiles, (void *)VRAM, sizeof(sTiles));
     LoadPalette(sBgPalette, 0, sizeof(sBgPalette));
     DrawBackground();
@@ -597,6 +701,21 @@ static void Task_FadeIn(u8 taskId)
 
 static void Task_HandleInput(u8 taskId)
 {
+    if (JOY_NEW(START_BUTTON))
+    {
+        PlaySE(SE_SELECT);
+        ShowInfoPage(!sScreen->infoPage);
+        return;
+    }
+    if (sScreen->infoPage)
+    {
+        if (JOY_NEW(B_BUTTON))
+        {
+            PlaySE(SE_SELECT);
+            ShowInfoPage(FALSE);
+        }
+        return;
+    }
     if (JOY_NEW(A_BUTTON))
     {
         u8 cell = sScreen->cursor;

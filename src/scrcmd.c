@@ -961,6 +961,8 @@ bool8 ScrCmd_applymovement(struct ScriptContext *ctx)
     u16 localId = VarGet(ScriptReadHalfword(ctx));
     void *movementScript = (void *)ScriptReadWord(ctx);
 
+    if (localId != LOCALID_PLAYER && localId != GUNK_FOLLOWER_LOCAL_ID)
+        GunkFollowerHideForScene();
     ScriptMovement_StartObjectMovementScript(localId, gSaveBlock1.location.mapNum, gSaveBlock1.location.mapGroup, movementScript);
     sMovingNpcId = localId;
     return FALSE;
@@ -973,6 +975,8 @@ bool8 ScrCmd_applymovement_at(struct ScriptContext *ctx)
     u8 mapGroup = ScriptReadByte(ctx);
     u8 mapNum = ScriptReadByte(ctx);
 
+    if (localId != LOCALID_PLAYER && localId != GUNK_FOLLOWER_LOCAL_ID)
+        GunkFollowerHideForScene();
     ScriptMovement_StartObjectMovementScript(localId, mapNum, mapGroup, movementScript);
     sMovingNpcId = localId;
     return FALSE;

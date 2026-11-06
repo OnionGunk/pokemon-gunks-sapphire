@@ -4443,6 +4443,27 @@ static u8 (*const sMovementTypeFuncs_GunkFollow[])(struct ObjectEvent *, struct 
 
 movement_type_def(MovementType_GunkFollow, sMovementTypeFuncs_GunkFollow);
 
+// Gunk: a script moves someone other than the player (applymovement), so a scene is playing: the follower goes back
+// in its ball (Gunk's Platinum hides it for scenes) and comes out behind the player once the player walks on
+void GunkFollowerHideForScene(void)
+{
+    struct ObjectEvent *player = &gObjectEvents[gPlayerAvatar.objectEventId];
+    u8 i;
+
+    for (i = 0; i < OBJECT_EVENTS_COUNT; i++)
+    {
+        struct ObjectEvent *follower = &gObjectEvents[i];
+
+        if (!follower->active || !GunkIsFollower(follower) || follower->invisible)
+            continue;
+        GunkFollowerShowBall(follower, follower->currentCoords.x, follower->currentCoords.y);
+        follower->invisible = TRUE;
+        SetObjectEventCoords(follower, player->currentCoords.x, player->currentCoords.y);
+        sub_805C058(follower, player->currentCoords.x, player->currentCoords.y);
+        gSprites[follower->spriteId].data[1] = 0;
+    }
+}
+
 static void ClearObjectEventMovement(struct ObjectEvent *objectEvent, struct Sprite *sprite)
 {
     objectEvent->singleMovementActive = 0;

@@ -53,6 +53,7 @@ void GunkFollowerOnMapLoad(void);
 void GunkFollowerStripFromSave(struct ObjectEvent *objectEvents);
 void GunkFollowerCry(void);
 void GunkFollowerShowBall(struct ObjectEvent *follower, s16 x, s16 y);
+void GunkFollowerHideForScene(void);
 
 // Emote bubbles over an object (src/trainer_see.c)
 #define GUNK_EMOTE_NONE        0

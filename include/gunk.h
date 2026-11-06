@@ -62,6 +62,11 @@ void GunkFollowerCry(void);
 #define GUNK_EMOTE_DOTS        5
 void GunkShowEmote(struct ObjectEvent *objectEvent, u8 emote);
 
+// Area info for the DexNav screen (src/gunk.c, src/wild_encounter.c)
+bool8 GunkInfo_GetOutbreak(u16 *species, u8 *mapGroup, u8 *mapNum, u8 *level, u16 *daysLeft);
+u8 GunkInfo_CountRipeBerryTrees(void);
+u8 GunkInfo_GetFeebasSpots(s16 *xs, s16 *ys);
+
 // Quick Ball and Quick Run (src/gunk_quickball.c, battle_controller_player.c)
 #define QUICK_BALL_NONE     0
 #define QUICK_BALL_CONSUMED 1

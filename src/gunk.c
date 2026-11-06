@@ -10,6 +10,7 @@
 #include "string_util.h"
 #include "constants/items.h"
 #include "constants/vars.h"
+#include "constants/berry.h"
 
 bool8 GunkSettingOn(u16 bit)
 {
@@ -93,4 +94,30 @@ const u8 *GunkTradeItemEffect(u16 item)
         return sGunkEvoStoneEffect;
     }
     return NULL;
+}
+
+// DexNav info: the mass outbreak the TV announced, if one is on (species, map, level, days left); FALSE if none
+bool8 GunkInfo_GetOutbreak(u16 *species, u8 *mapGroup, u8 *mapNum, u8 *level, u16 *daysLeft)
+{
+    if (gSaveBlock1.outbreakPokemonSpecies == SPECIES_NONE)
+        return FALSE;
+    *species = gSaveBlock1.outbreakPokemonSpecies;
+    *mapGroup = gSaveBlock1.outbreakLocationMapGroup;
+    *mapNum = gSaveBlock1.outbreakLocationMapNum;
+    *level = gSaveBlock1.outbreakPokemonLevel;
+    *daysLeft = gSaveBlock1.outbreakUnk5;
+    return TRUE;
+}
+
+// DexNav info: berry trees with berries to pick, over all of Hoenn
+u8 GunkInfo_CountRipeBerryTrees(void)
+{
+    u8 i, count = 0;
+
+    for (i = 0; i < BERRY_TREES_COUNT; i++)
+    {
+        if (gSaveBlock1.berryTrees[i].stage == BERRY_STAGE_BERRIES)
+            count++;
+    }
+    return count;
 }

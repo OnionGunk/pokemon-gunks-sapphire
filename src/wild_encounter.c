@@ -724,3 +724,51 @@ static void ApplyCleanseTagEncounterRateMod(u32 *encRate)
     if (GetMonData(&gPlayerParty[0], MON_DATA_HELD_ITEM) == 0xBE)
         *encRate = *encRate * 2 / 3;
 }
+
+// Gunk (DexNav info): today's Feebas tiles on Route 119, as map coordinates, the same six CheckFeebas picks from
+// the Dewford trend seed. Only while the player is on Route 119 (it reads the loaded map); returns how many it
+// found. Uses the Feebas RNG only, so the encounter RNG is untouched.
+u8 GunkInfo_GetFeebasSpots(s16 *xs, s16 *ys)
+{
+    u16 spots[NUM_FEEBAS_SPOTS];
+    u16 tileNum, xCur, yCur;
+    u8 i, section, found = 0;
+
+    if (gSaveBlock1.location.mapGroup != MAP_GROUP(MAP_ROUTE119)
+     || gSaveBlock1.location.mapNum != MAP_NUM(MAP_ROUTE119))
+        return 0;
+    FeebasSeedRng(gSaveBlock1.easyChatPairs[0].unk2);
+    for (i = 0; i != NUM_FEEBAS_SPOTS;)
+    {
+        spots[i] = FeebasRandom() % 447;
+        if (spots[i] == 0)
+            spots[i] = 447;
+        if (spots[i] < 1 || spots[i] >= 4)
+            i++;
+    }
+    // A tile matches when its number within its third of the route (GetRoute119WaterTileNum) is a spot
+    for (section = 0; section < 3; section++)
+    {
+        tileNum = gRoute119WaterTileData[section * 3 + 2];
+        for (yCur = gRoute119WaterTileData[section * 3 + 0]; yCur <= gRoute119WaterTileData[section * 3 + 1]; yCur++)
+        {
+            for (xCur = 0; xCur < gMapHeader.mapLayout->width; xCur++)
+            {
+                if (MetatileBehavior_IsFeebasEncounterable(MapGridGetMetatileBehaviorAt(xCur + 7, yCur + 7)) != TRUE)
+                    continue;
+                tileNum++;
+                for (i = 0; i < NUM_FEEBAS_SPOTS; i++)
+                {
+                    if (spots[i] == tileNum && found < NUM_FEEBAS_SPOTS)
+                    {
+                        xs[found] = xCur;
+                        ys[found] = yCur;
+                        found++;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+    return found;
+}

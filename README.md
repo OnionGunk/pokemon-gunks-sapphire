@@ -16,12 +16,18 @@ and shares its code with its sister hack, Gunk's Ruby.
 - **Pokémon:** IV and EV view in the summary, an Exp. All key item, vitamins up to 252 EVs, and trade evolutions
   without trading. HM moves work without teaching the move, and every PC has a Move Tutor that remembers and
   forgets moves.
-- **DexNav:** a key item that lists the area's Pokémon. Pick one and it hides in the grass nearby. Search levels
-  and chains raise the odds of good IVs and shinies, and every encounter is a legal wild Pokémon.
+- **DexNav.** Mom gives it to you with the Running Shoes, before the first gym. Its screen shows the area's land
+  and water Pokémon: caught in color with a Poké Ball mark, seen as a silhouette, unseen as a question mark. Pick
+  one you've seen, and it hides in the tall grass nearby, or in the water while you surf; press **R** to search
+  for it again. A bar at the top shows what's in the patch (level, nature, ability, best IVs) and a shiny one
+  sparkles. Search levels and chains raise the odds of good IVs, shinies and held items, and every encounter is a
+  legal wild Pokémon (checked with PKHeX).
 - **A dead clock battery doesn't stop time:** most Sapphire carts' clock batteries have run dry, which freezes
   berries, tides and daily events. When the clock reports a power failure, the game runs its clock from play time
   instead.
-- **Following Pokémon** and **16 PC boxes**.
+- **Pokémon follow you:** the first Pokémon in your party walks behind you, every species with its own sprite.
+  Talk to it to hear how it feels about you. It goes back in its Poké Ball while you surf or bike.
+- **16 PC boxes** (14 in the original game): a living dex of all 386 with spares.
 - **Quick Run and Quick Ball:** R runs from battle; in wild battles tap L to throw the ball shown at the bottom left,
   hold L + Left / Right to pick another kind.
 
@@ -43,6 +49,10 @@ sha1: 3ccbbd45f8553c36463f13b938e833f652b793e4
    The patcher checks your ROM first and refuses the wrong one.
 
 Saves carry over between releases unless the release notes say otherwise. Back up your save before updating.
+Saves from the original Sapphire don't load (the extra PC boxes moved the save layout): start a new game.
+
+**PokeDaisy users:** the companion app reads game memory at fixed addresses, and this hack moves some of them.
+Use a PokeDaisy build that lists this exact release, or turn the companion off.
 
 ## Build it
 

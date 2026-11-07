@@ -1770,7 +1770,7 @@ EventScript_GunkDexNavClose:
 	end
 
 Text_GunkDexNavFound:
-	.string "{STR_VAR_1} Lv. {STR_VAR_2} is in the grass!\n"
+	.string "{STR_VAR_1} Lv. {STR_VAR_2} is hiding nearby!\n"
 	.string "{STR_VAR_3}$"
 
 Text_GunkDexNavFoundWater:
@@ -1785,7 +1785,7 @@ Text_GunkDexNavNoneHere:
 	.string "around here.$"
 
 Text_GunkDexNavNoPatch:
-	.string "No tall grass close enough.\n"
+	.string "Nowhere close enough for it to hide.\n"
 	.string "Try somewhere else.$"
 
 Text_GunkDexNavNoTarget:
@@ -1805,8 +1805,8 @@ Text_GunkDexNavNoWaterPatch:
 	.string "Try somewhere else.$"
 
 Text_GunkDexNavNeedsLand:
-	.string "It lives in the grass. Search\n"
-	.string "for it on land.$"
+	.string "It doesn't live in the water.\n"
+	.string "Search for it on land.$"
 
 Text_GunkDexNavNeedsSurf:
 	.string "It lives in the water. SURF to\n"

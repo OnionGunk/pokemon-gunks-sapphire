@@ -33,6 +33,7 @@
 #include "task.h"
 #include "text.h"
 #include "constants/songs.h"
+#include "constants/map_types.h"
 #include "constants/maps.h"
 #include "constants/species.h"
 
@@ -145,13 +146,15 @@ static const u8 sText_NotSeenYet[] = _("Not seen yet");
 static const u8 sText_Seen[] = _("Seen");
 static const u8 sText_CaughtStatus[] = _("Caught");
 static const u8 sText_Grass[] = _("Grass");
+static const u8 sText_Cave[] = _("Cave");
 static const u8 sText_Surfing[] = _("Surfing");
 static const u8 sText_Lv[] = _("  Lv. ");
 static const u8 sText_SearchLv[] = _("Search Lv. ");
 static const u8 sText_Chain[] = _("   Chain ");
 static const u8 sText_None[] = _("None yet");
 static const u8 sText_HintChoose[] = _("Press A on a seen POKéMON to choose it.");
-static const u8 sText_HintGrass[] = _("Press R in tall grass to search.");
+static const u8 sText_HintGrass[] = _("Press R in the grass to search.");
+static const u8 sText_HintCave[] = _("Press R in the cave to search.");
 static const u8 sText_HintWater[] = _("Press R while surfing to search.");
 
 static void VBlankCB(void);
@@ -322,6 +325,12 @@ static void PrintStaticText(void)
     PrintColored(sText_TitleColors, gStringVar1, 21, 0, FALSE);
 }
 
+// Land Pokémon in caves are on the cave floor, not in grass
+static bool8 InCave(void)
+{
+    return gMapHeader.mapType == MAP_TYPE_UNDERGROUND;
+}
+
 static void PrintInfo(void)
 {
     const struct GunkDexNavArea *area = Area();
@@ -345,7 +354,7 @@ static void PrintInfo(void)
         PrintColored(sText_InkColors, sText_Unseen, INFO_LEFT + 1, INFO_TOP + 1, FALSE);
         PrintColored(sText_InkColors, sText_NotSeenYet, INFO_LEFT + 1, INFO_TOP + 3, FALSE);
     }
-    s = StringCopy(gStringVar1, water ? sText_Surfing : sText_Grass);
+    s = StringCopy(gStringVar1, water ? sText_Surfing : InCave() ? sText_Cave : sText_Grass);
     s = StringCopy(s, sText_Lv);
     s = ConvertIntToDecimalStringN(s, water ? area->waterMin[n] : area->landMin[n], STR_CONV_MODE_LEFT_ALIGN, 3);
     if ((water ? area->waterMax[n] : area->landMax[n]) != (water ? area->waterMin[n] : area->landMin[n]))
@@ -376,7 +385,8 @@ static void PrintSearch(void)
     s = StringCopy(s, sText_Chain);
     ConvertIntToDecimalStringN(s, GunkDexNavChain(target), STR_CONV_MODE_LEFT_ALIGN, 3);
     PrintColored(sText_InkColors, gStringVar1, 1, SEARCH_TOP + 1, FALSE);
-    PrintColored(sText_InkColors, water ? sText_HintWater : sText_HintGrass, 1, SEARCH_TOP + 3, FALSE);
+    PrintColored(sText_InkColors, water ? sText_HintWater : InCave() ? sText_HintCave : sText_HintGrass, 1,
+                 SEARCH_TOP + 3, FALSE);
 }
 
 // --- icons ---

@@ -256,7 +256,8 @@ static bool8 IsPatchTile(s16 x, s16 y, bool8 water)
 {
     u8 behavior = MapGridGetMetatileBehaviorAt(x, y);
 
-    return (water ? MetatileBehavior_IsSurfableWaterOrUnderwater(behavior) : MetatileBehavior_IsTallGrass(behavior))
+    // land: wherever a wild battle can start on foot (tall, long and ash-covered grass, cave floors)
+    return (water ? MetatileBehavior_IsSurfableWaterOrUnderwater(behavior) : MetatileBehavior_IsLandWildEncounter(behavior))
         && MapGridGetCollisionAt(x, y) == 0
         && GetObjectEventIdByXY(x, y) == OBJECT_EVENTS_COUNT;
 }
@@ -397,6 +398,7 @@ void GunkDexNavUpdate(void)
 {
     struct ObjectEvent *player;
     s16 dx, dy;
+    u8 behavior;
 
     if (!sDexNav.active || sDexNav.inBattle)
         return;
@@ -452,7 +454,18 @@ void GunkDexNavUpdate(void)
         FieldEffectStart(FLDEFF_RIPPLE);
         return;
     }
-    // the tall grass "walked through" animation, tied to the player object so it ends by itself
+    behavior = MapGridGetMetatileBehaviorAt(sDexNav.x, sDexNav.y);
+    if (!MetatileBehavior_IsTallGrass(behavior) && !MetatileBehavior_IsLongGrass(behavior))
+    {
+        // ash-covered grass and cave floors: a puff of dust (the ash effect would clear the ash from the tile)
+        gFieldEffectArguments[0] = sDexNav.x;
+        gFieldEffectArguments[1] = sDexNav.y;
+        gFieldEffectArguments[2] = player->previousElevation;
+        gFieldEffectArguments[3] = gSprites[player->spriteId].oam.priority;
+        FieldEffectStart(FLDEFF_DUST);
+        return;
+    }
+    // the tall (or long) grass "walked through" animation, tied to the player object so it ends by itself
     gFieldEffectArguments[0] = sDexNav.x;
     gFieldEffectArguments[1] = sDexNav.y;
     gFieldEffectArguments[2] = player->previousElevation;
@@ -461,7 +474,7 @@ void GunkDexNavUpdate(void)
     gFieldEffectArguments[5] = player->mapGroup;
     gFieldEffectArguments[6] = (u8)gSaveBlock1.location.mapNum << 8 | (u8)gSaveBlock1.location.mapGroup;
     gFieldEffectArguments[7] = 0;
-    FieldEffectStart(FLDEFF_TALL_GRASS);
+    FieldEffectStart(MetatileBehavior_IsLongGrass(behavior) ? FLDEFF_LONG_GRASS : FLDEFF_TALL_GRASS);
 }
 
 bool8 IsShinyOtIdPersonality(u32 otId, u32 personality);
